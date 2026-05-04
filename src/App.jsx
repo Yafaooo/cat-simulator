@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { SUBTESTS } from './data/questions';
 
+const VALID_ACCESS_CODES = [
+  'PHTC-A1X9', 'PHTC-B2Y8', 'PHTC-C3Z7', 'PHTC-D4W6', 'PHTC-E5V5',
+  'PHTC-F6U4', 'PHTC-G7T3', 'PHTC-H8S2', 'PHTC-I9R1', 'PHTC-J0Q0',
+  'PHTC-K1P9', 'PHTC-L2O8', 'PHTC-M3N7', 'PHTC-N4M6', 'PHTC-O5L5',
+  'PHTC-P6K4', 'PHTC-Q7J3', 'PHTC-R8I2', 'PHTC-S9H1', 'PHTC-T0G0'
+];
+
 function App() {
   const [appState, setAppState] = useState('locked'); // locked, intro, test, result
   const [accessCode, setAccessCode] = useState('');
@@ -13,6 +20,14 @@ function App() {
   
   const currentSubtest = SUBTESTS[currentSubtestIndex];
   const currentQuestion = currentSubtest?.questions[currentQuestionIndex];
+  
+  // Check local storage for existing session
+  useEffect(() => {
+    const savedCode = localStorage.getItem('phtc_access_code');
+    if (savedCode && VALID_ACCESS_CODES.includes(savedCode)) {
+      setAppState('intro');
+    }
+  }, []);
   
   // Start the test
   const startTest = () => {
@@ -185,8 +200,12 @@ function App() {
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  if (accessCode === 'PHTC2026') setAppState('intro');
-                  else setAccessError(true);
+                  if (VALID_ACCESS_CODES.includes(accessCode.trim())) {
+                    localStorage.setItem('phtc_access_code', accessCode.trim());
+                    setAppState('intro');
+                  } else {
+                    setAccessError(true);
+                  }
                 }
               }}
               style={{
@@ -207,7 +226,8 @@ function App() {
             className="btn"
             style={{ padding: '16px 48px', fontSize: '1.2rem', width: '100%' }} 
             onClick={() => {
-              if (accessCode === 'PHTC2026') {
+              if (VALID_ACCESS_CODES.includes(accessCode.trim())) {
+                localStorage.setItem('phtc_access_code', accessCode.trim());
                 setAppState('intro');
               } else {
                 setAccessError(true);
