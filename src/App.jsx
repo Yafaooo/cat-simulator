@@ -130,7 +130,7 @@ function App() {
   };
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', width: '100%' }}>
+    <div className="app-container">
       {appState === 'intro' && (
         <div className="glass-panel animate-fade-in" style={{ padding: '3rem', textAlign: 'center' }}>
           <h1 style={{ color: 'var(--primary)', marginBottom: '1rem', fontSize: '2rem' }}>
