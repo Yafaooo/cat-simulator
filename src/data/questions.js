@@ -300,22 +300,60 @@ const manajemenData = [
 // Opsi 5 tingkat dari Sangat Buruk (1) hingga Sangat Baik (5) (Urutannya telah diacak oleh sistem)
 const genManajemen = () => {
   let res = [];
-  const optionsTpl = [
-    "A. Mengabaikan masalah dan membiarkan berlalu.",
-    "B. Bertindak reaktif, emosional, dan menjatuhkan sanksi seketika tanpa analisis.",
-    "C. Melimpahkan tanggung jawab keputusan kepada atasan.",
-    "D. Melakukan teguran/tindakan standar sesuai SOP secara normatif.",
-    "E. Melakukan pendekatan personal, menginvestigasi akar masalah komprehensif, bermusyawarah, dan mengeksekusi solusi sistematis."
+  
+  // 20 set opsi spesifik untuk 20 soal manajemen. 
+  // Indeks 0 = 1 Poin (Sangat Buruk), Indeks 4 = 5 Poin (Sangat Baik/Solutif)
+  const manajemenOptionsData = [
+    // 1. Tim senior meremehkan kebijakan
+    ["Meminta HRD memecat mereka segera", "Mendiamkan mereka sampai mereka sadar sendiri", "Mengancam mereka dengan sanksi indisipliner", "Mengadakan rapat formal untuk sekadar membaca ulang visi", "Mengajak diskusi personal 4 mata untuk memahami keberatan mereka dan mencari titik temu"],
+    // 2. Gagal target triwulanan
+    ["Menyalahkan perubahan regulasi secara emosional", "Menyalahkan tim yang kurang cepat beradaptasi", "Diam dan pasrah menunggu arahan dari direksi", "Meminta maaf dan berjanji akan lebih baik tanpa rencana", "Mempresentasikan analisis dampak regulasi beserta strategi adaptasi riil untuk triwulan depan"],
+    // 3. Staf penggelapan dana (baru indikasi lisan)
+    ["Langsung memecat staf tersebut di hari yang sama", "Menyebarkan rumor di kantor agar ia merasa malu", "Melaporkan langsung ke pihak berwajib tanpa bukti", "Menegur staf tersebut secara lisan di lorong kantor", "Melakukan audit internal secara diam-diam dan rahasia untuk mengumpulkan bukti tertulis"],
+    // 4. Karyawan berselisih saat rapat
+    ["Membentak mereka agar diam dan keluar dari ruangan", "Membubarkan rapat seketika dan pergi", "Membiarkan mereka berdebat tak berujung", "Melerai dan meminta mereka menyelesaikan urusannya di luar", "Menengahi dengan tenang, merangkum poin kedua pihak, dan mencari konklusi objektif berbasis data"],
+    // 5. Potong anggaran 20% tapi target naik
+    ["Protes keras ke manajemen dan mogok kerja", "Memotong gaji/insentif karyawan secara sepihak", "Menyerah pada target dan bekerja seadanya", "Melakukan penghematan pukul rata di semua lini", "Menganalisis skala prioritas, mengeliminasi inefisiensi, dan mengoptimalkan resource yang ada"],
+    // 6. Vendor putus kontrak sepihak H-1
+    ["Memarahi vendor habis-habisan di media sosial", "Menyalahkan staf pengadaan di depan seluruh tim", "Panik dan membatalkan seluruh rangkaian acara", "Mencari vendor pengganti seadanya tanpa filter kualitas", "Mengerahkan seluruh relasi untuk vendor darurat sambil meninjau opsi penalti kontrak lama"],
+    // 7. Rajin/lambat vs Cerdas/mangkir
+    ["Memprioritaskan yang cerdas/mangkir tanpa syarat", "Memecat keduanya agar adil", "Memilih berdasarkan kedekatan/kesukaan personal", "Memprioritaskan yang rajin semata-mata karena kasihan", "Melakukan evaluasi performa komprehensif (KPI & Attitude) sebagai dasar keputusan efisiensi"],
+    // 8. Ide diklaim manajer lain
+    ["Marah dan memaki manajer tersebut di tengah rapat", "Menyindirnya dengan kasar di depan forum", "Diam saja karena tidak enak dan merasa segan", "Langsung memotong bicaranya dengan emosi", "Mengklarifikasi secara elegan dengan menambahkan detail teknis mendalam yang hanya dikuasai tim Anda"],
+    // 9. SOP 5 tahun inefisien
+    ["Mengabaikan keluhan karena 'sudah tradisi'", "Mengubah SOP sepihak hari itu juga tanpa persetujuan", "Terus mengeluh kepada atasan tanpa bertindak", "Menunggu instruksi perbaikan dari HRD secara pasif", "Menyusun draf SOP baru yang efisien dan mempresentasikannya kepada manajemen tingkat atas"],
+    // 10. Proyek mundur dari jadwal
+    ["Menutupi kendala sampai hari tenggat waktu tiba", "Mencari kambing hitam dari bawahan Anda", "Membuat alasan palsu yang tidak masuk akal", "Melaporkan kendala secara pasrah tanpa membawa solusi", "Melaporkan kendala sedini mungkin beserta analisis risiko dan proposal penyesuaian timeline"],
+    // 11. Keluhan beban kerja tak adil
+    ["Mengabaikan keluhannya karena dianggap cengeng", "Menyuruhnya resign jika tidak sanggup", "Memarahi rekan setimnya yang dianggap bersantai", "Menasihatinya untuk banyak bersabar dan ikhlas", "Memetakan ulang pembagian beban kerja secara transparan dan adil sesuai deskripsi tugas (jobdesk)"],
+    // 12. Atasan minta manipulasi laporan
+    ["Menolak mentah-mentah dengan nada menantang", "Mengikuti arahan manipulasi sepenuhnya karena takut", "Merekam percakapan untuk memeras atasan di kemudian hari", "Memanipulasi sebagian kecil agar terlihat aman", "Menolak dengan profesional dan menyajikan data asli yang dikemas dengan proyeksi strategi perbaikan nyata"],
+    // 13. Rumor divisi bubar
+    ["Ikut menyebarkan rumor ke departemen lain", "Sibuk mencari pekerjaan baru dan menelantarkan tim", "Memarahi siapapun yang membicarakan rumor tersebut", "Mendiamkan rumor sampai hilang terbawa waktu", "Mengklarifikasi fakta ke dewan direksi, lalu mengadakan townhall meeting untuk menenangkan moral tim"],
+    // 14. Pelamar kerabat direktur di bawah rata-rata
+    ["Langsung menerimanya untuk menjilat direktur", "Menolaknya dengan kata-kata tidak sopan", "Menerimanya namun menempatkannya di posisi rendahan", "Merekayasa hasil tes pelamar agar terlihat pantas", "Menolaknya secara etis dengan melampirkan hasil tes objektif dan merekomendasikan kandidat yang lebih tepat"],
+    // 15. Inovasi butuh biaya besar di awal
+    ["Memaksa manajemen menyetujuinya tanpa dasar kuat", "Marah dan mengancam mundur jika ditolak", "Diam-diam menggunakan dana darurat divisi lain", "Hanya menyajikan ide secara lisan/kasar", "Menyusun proposal komprehensif berisi ROI (Return on Investment) dan simulasi penghematan 3 tahun ke depan"],
+    // 16. Staf bocorkan rahasia ke medsos
+    ["Memviralkan kebodohan staf tersebut", "Melakukan kekerasan fisik atau verbal berlebihan", "Menyita perangkat pribadi (HP) staf tersebut", "Langsung memecatnya hari itu juga tanpa pesangon", "Memberikan Surat Peringatan sesuai PKB dan memperketat protokol keamanan informasi digital divisi"],
+    // 17. Krisis komunikasi publik KDKMP
+    ["Menghapus seluruh akun media sosial divisi", "Meluapkan amarah kepada tim Public Relation", "Mengabaikan netizen dan mematikan kolom komentar", "Menghapus komentar negatif secara diam-diam", "Merilis pernyataan klarifikasi resmi yang empatik, jujur, dan menjanjikan langkah perbaikan nyata"],
+    // 18. Tim inti sering typo/kesalahan kecil
+    ["Mempermalukannya di grup chat divisi", "Langsung menurunkan jabatannya saat itu juga", "Membiarkannya karena menganggap itu hal remeh", "Terus-menerus Anda perbaiki sendiri secara diam-diam", "Memberikan feedback konstruktif secara privat dan mengimplementasikan sistem peer-review antar anggota"],
+    // 19. Deadline vs Kualitas
+    ["Mengerjakan asal-asalan yang penting tepat waktu", "Terlambat berhari-hari tanpa mengabari klien", "Memaksa bawahan lembur non-stop sampai sakit", "Mengerjakan setengah-setengah dengan kualitas rendah", "Melakukan negosiasi perpanjangan waktu logis dengan klien demi menjamin kualitas pekerjaan optimal"],
+    // 20. Alokasi bonus tidak cukup
+    ["Membaginya rata tanpa memedulikan siapa yang berkinerja", "Mengambil porsi terbesar untuk diri sendiri", "Memberikannya kepada yang paling sering curhat soal uang", "Membagikannya murni berdasarkan senioritas masa kerja", "Mengalokasikan bonus secara proporsional berlandaskan metrik pencapaian KPI individu yang transparan"]
   ];
 
   for (let i = 0; i < manajemenData.length; i++) {
-    // Array pengacakan bobot opsi (agar 5 poin tidak selalu di E)
+    // Pengacakan posisi bobot agar 5 poin tidak selalu di posisi E
     const bobotOptions = [
-      [1, 2, 3, 4, 5], 
-      [5, 4, 3, 2, 1], 
-      [2, 4, 5, 3, 1], 
-      [3, 1, 2, 5, 4], 
-      [4, 5, 1, 2, 3]  
+      [1, 2, 3, 4, 5], // 5 poin di E
+      [5, 4, 3, 2, 1], // 5 poin di A
+      [2, 4, 5, 3, 1], // 5 poin di C
+      [3, 1, 2, 5, 4], // 5 poin di D
+      [4, 5, 1, 2, 3]  // 5 poin di B
     ];
     let currentBobot = bobotOptions[i % 5];
     let finalOptions = [];
@@ -324,7 +362,7 @@ const genManajemen = () => {
        const targetPoin = currentBobot[j];
        const textIndex = targetPoin - 1; 
        const prefix = String.fromCharCode(65 + j); // A, B, C, D, E
-       const rawText = optionsTpl[textIndex].substring(3);
+       const rawText = manajemenOptionsData[i][textIndex];
        finalOptions.push(`${prefix}. ${rawText}`);
     }
 
