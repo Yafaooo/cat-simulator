@@ -208,6 +208,26 @@ function App() {
     <div className="app-container">
       {appState === 'locked' && (
         <div className="glass-panel animate-fade-in" style={{ padding: '3rem', textAlign: 'center', maxWidth: '500px', margin: '10vh auto' }}>
+          
+          {/* Logo Kopdes Merah Putih */}
+          <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+            <img 
+              src="/kopdes.jpg" 
+              alt="Logo Kopdes Merah Putih" 
+              style={{ 
+                height: '110px', 
+                objectFit: 'contain',
+                background: '#fff', // Latar putih agar logo terlihat kontras
+                padding: '10px 20px',
+                borderRadius: '12px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+                transition: 'transform 0.3s ease'
+              }} 
+              onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            />
+          </div>
+
           <h1 style={{ color: 'var(--primary)', marginBottom: '1rem', fontSize: '2rem' }}>
             AKSES TERKUNCI
           </h1>
