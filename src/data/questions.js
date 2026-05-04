@@ -206,20 +206,11 @@ const genPola = () => {
 
 const genRuang = () => {
   let res = [];
-  const ruangActions = [
-    "Jika jaring-jaring bangun ruang di atas dilipat, di manakah letak sisi bertanda silang (X) relatif terhadap lingkaran?",
-    "Manakah dari pernyataan berikut yang benar mengenai volume dan luas permukaan jika gambar dirakit?",
-    "Identifikasi jumlah rusuk yang bersentuhan dengan sisi lingkaran jika jaring-jaring ini menjadi balok sempurna.",
-    "Sisi mana yang akan sejajar (berhadapan langsung) dengan sisi yang ditandai dengan silang (X)?",
-    "Jika sisi lingkaran menjadi tutup (atas), di manakah letak sisi berbentuk persegi panjang terjauh?"
-  ];
-
   for (let i = 1; i <= 27; i++) {
-    const actionText = ruangActions[i % ruangActions.length];
     const color = `hsl(${(i * 40 + 100) % 360}, 60%, 45%)`;
-    // Jaring-jaring dinamis
     const topWingY = 60 + (i%2)*40;
     const botWingY = 60 + (i%3)*40;
+    
     const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" style="background:#1e293b;border-radius:8px">
       <g stroke="${color}" stroke-width="2" fill="none">
         <rect x="80" y="20" width="40" height="40"/>
@@ -233,28 +224,51 @@ const genRuang = () => {
       </g>
     </svg>`;
     
-    let optA, optB, optC, optD, optE;
+    // Variasi Pertanyaan Unik
+    const questions = [
+      `Jika jaring-jaring bangun ruang di atas dilipat, sisi mana yang akan sejajar/berhadapan dengan lingkaran? (Asumsi lipatan ke dalam)`,
+      `Apabila sisi bergambar lingkaran dijadikan sebagai alas (bawah), maka sisi bertanda 'X' akan berada di posisi...`,
+      `Jika setiap persegi memiliki luas ${i*4 + 10} cm², berapakah volume maksimal balok yang terbentuk?`,
+      `Berapa banyak rusuk (garis lipatan) yang bersentuhan langsung dengan sisi bertanda 'X'?`,
+      `Jika bangun ini diputar 90 derajat ke kanan setelah dirakit, sisi manakah yang menjadi tampak depan?`
+    ];
     
-    if (i % 2 === 0) {
-      optA = `Tepat berseberangan (berhadapan) dengan lingkaran`;
-      optB = `Tepat berdampingan di sisi kanan (membentuk sudut siku-siku)`;
-      optC = `Tepat berdampingan di sisi kiri (membentuk sudut siku-siku)`;
-      optD = `Menjadi atap atau tutup atas balok`;
-      optE = `Menjadi alas atau dasar balok`;
+    const qType = i % 5;
+    const text = `Abstraksi Ruang ${i}: ${questions[qType]}`;
+    
+    // Generator Opsi Variatif dan Teracak
+    let rawOptions = [];
+    if (qType === 0) {
+      rawOptions = [`Sisi 'X'`, `Persegi paling bawah`, `Persegi paling atas`, `Sisi di sebelah kanan`, `Sisi di bawah lingkaran`];
+    } else if (qType === 1) {
+      rawOptions = [`Menjadi tutup (Atap)`, `Berada di sisi kiri`, `Berada di sisi kanan`, `Menjadi sisi depan`, `Menempel di sisi belakang`];
+    } else if (qType === 2) {
+      const baseVol = (i*4 + 10) * Math.sqrt(i*4 + 10);
+      rawOptions = [`${Math.round(baseVol)} cm³`, `${Math.round(baseVol + 15)} cm³`, `${Math.round(baseVol + 30)} cm³`, `${Math.round(baseVol - 10)} cm³`, `Tidak dapat dihitung`];
+    } else if (qType === 3) {
+      rawOptions = [`1 rusuk utama`, `2 rusuk sejajar`, `3 rusuk berpotongan`, `4 rusuk sisi`, `Hanya bersentuhan di titik sudut`];
     } else {
-      optA = `Bersebelahan dengan 2 sisi kosong`;
-      optB = `Volume akan sebanding dengan kuadrat sisi terkecilnya`;
-      optC = `Berhadapan dengan sisi paling ujung (koordinat terjauh)`;
-      optD = `Terlipat masuk ke dalam dan tertutup`;
-      optE = `Menempel dan membentuk sudut lancip dengan silang`;
+      rawOptions = [`Sisi kosong`, `Sisi lingkaran`, `Sisi 'X'`, `Sisi bawah`, `Sisi yang tak terlihat`];
+    }
+
+    // Mengacak posisi jawaban benar agar tidak mudah ditebak
+    const correctAnsIndex = (i + 3) % 5;
+    
+    // Mapping ke format A-E
+    let finalOptions = [];
+    for (let j = 0; j < 5; j++) {
+      const prefix = String.fromCharCode(65 + j); // A, B, C, D, E
+      // Modifikasi string agar terlihat unik di setiap nomor
+      const suffix = (j === correctAnsIndex) ? ' (Logis)' : (i%2===0 ? ' (Tidak sesuai rasio)' : '');
+      finalOptions.push(`${prefix}. ${rawOptions[(j + i) % 5]}${j===correctAnsIndex ? '' : ''}`);
     }
 
     res.push({
       id: `5-${i}`,
-      text: `Abstraksi Ruang ${i}: ${actionText}`,
+      text: text,
       svg: svgStr,
-      options: [`A. ${optA}`, `B. ${optB}`, `C. ${optC}`, `D. ${optD}`, `E. ${optE}`],
-      answer: (i + 1) % 5
+      options: finalOptions,
+      answer: correctAnsIndex
     });
   }
   return res;
@@ -262,54 +276,57 @@ const genRuang = () => {
 
 const genBentuk = () => {
   let res = [];
-  const bentukActions = [
-    "Carilah bayangan siluet yang paling sesuai jika objek ini diterangi dari arah jam 10.",
-    "Berapakah estimasi luas area negatif (lubang) yang terbentuk di tengah objek?",
-    "Jika objek ini dibelah dua secara diagonal, manakah bentuk penampang potongannya?",
-    "Identifikasi jumlah sudut tumpul pada perimeter luar bangunan abstrak tersebut.",
-    "Bentuk apa yang akan terjadi jika siluet ini diinversi (negatif ke positif)?"
-  ];
-
+  
   for (let i = 1; i <= 25; i++) {
-    const actionText = bentukActions[i % bentukActions.length];
-    
-    // Generator siluet acak 100% berbeda
+    // Siluet berubah ekstrim
     const cx = 100 + (i%5)*5;
     const cy = 100 - (i%4)*5;
+    const rot = i*15;
     const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" style="background:#0f172a;border-radius:8px">
-      <path d="M${40+i},${30+i} Q${100-i},${10+i*2} ${160-i},${40+i} T${180-i},${150-i} Q${100+i},${190-i} ${30+i},${160-i} Z" fill="var(--text-muted)" opacity="0.5"/>
+      <path d="M${40+i},${30+i} Q${100-i},${10+i*2} ${160-i},${40+i} T${180-i},${150-i} Q${100+i},${190-i} ${30+i},${160-i} Z" fill="var(--text-muted)" opacity="0.5" transform="rotate(${rot} 100 100)"/>
       <circle cx="${cx}" cy="${cy}" r="${20 + i%10}" fill="#0f172a"/>
-      <rect x="${cx - 10}" y="${cy - 30}" width="${20+i%5}" height="${60+i%5}" fill="white" transform="rotate(${i*15} ${cx} ${cy})" opacity="0.2"/>
+      <rect x="${cx - 10}" y="${cy - 30}" width="${20+i%5}" height="${60+i%5}" fill="white" transform="rotate(${-rot} ${cx} ${cy})" opacity="0.2"/>
     </svg>`;
     
-    let optA, optB, optC, optD, optE;
+    const questions = [
+      `Carilah bayangan siluet yang paling sesuai jika objek ini disinari dari sudut ${rot} derajat.`,
+      `Berapakah estimasi luas area negatif (lingkaran berlubang) jika total diameter area kotak adalah 200 unit?`,
+      `Berdasarkan garis lengkung pada sisi luarnya, tentukan bentuk geometri dasar pembentuknya.`,
+      `Jika objek ini dipotong tepat di sumbu Y tengah, manakah pernyataan yang benar?`,
+      `Analisis posisi kotak putih transparan terhadap lingkaran hitam.`
+    ];
     
-    if (i % 3 === 0) {
-      optA = `Siluet memanjang ke arah barat daya`;
-      optB = `Siluet akan membentuk lingkaran tidak sempurna`;
-      optC = `Luas area mendekati 1/4 dari total objek`;
-      optD = `Memiliki 3 sudut tumpul asimetris`;
-      optE = `Penampangnya berbentuk elips terpotong`;
-    } else if (i % 3 === 1) {
-      optA = `Terdapat dua rongga cahaya di tengah`;
-      optB = `Tebal potongan di sisi kanan lebih besar`;
-      optC = `Bentuk inversinya mirip dengan anak panah`;
-      optD = `Memiliki tepat ${4 + i%3} sudut tajam`;
-      optE = `Bayangan jatuh rata ke arah kanan bawah (jam 4)`;
+    const qType = i % 5;
+    const text = `Bentuk ${i}: ${questions[qType]}`;
+    
+    let rawOptions = [];
+    if (qType === 0) {
+      rawOptions = [`Membentuk elips memanjang ke arah jam ${i%12 + 1}`, `Jatuh tepat di bawah objek`, `Bayangan terbelah dua oleh lubang`, `Menghasilkan siluet bergerigi`, `Bayangan tidak terbentuk sempurna`];
+    } else if (qType === 1) {
+      const radius = 20 + i%10;
+      const area = Math.round(Math.PI * radius * radius);
+      rawOptions = [`${area} unit kuadrat`, `${area + i*10} unit kuadrat`, `${area - 5} unit kuadrat`, `${area * 2} unit kuadrat`, `Mendekati 1/4 area total`];
+    } else if (qType === 2) {
+      rawOptions = [`Parabola dan Lingkaran`, `Segitiga melengkung dan Elips`, `Trapesium asimetris`, `Poligon dengan ${4 + i%3} sisi`, `Kurva Bezier terbuka`];
+    } else if (qType === 3) {
+      rawOptions = [`Sisi kiri akan memiliki massa lebih besar`, `Sisi kanan akan mengandung area berlubang utuh`, `Potongan akan simetris persis`, `Area transparan terpotong tidak rata`, `Tidak dapat dipotong secara simetris vertikal`];
     } else {
-      optA = `Area negatif mendominasi bagian bawah`;
-      optB = `Siluet menyusut karena sumber cahaya jauh`;
-      optC = `Terdapat sudut lancip pada derajat ${45 + i%10}`;
-      optD = `Bentuk hasil belahannya akan simetris`;
-      optE = `Seluruh sudut luar berjenis sudut refleks`;
+      rawOptions = [`Berada di kuadran ${i%4 + 1} lingkaran`, `Tepat di pusat lingkaran (konsentris)`, `Memotong garis keliling lingkaran`, `Berada di luar area lingkaran seluruhnya`, `Menyilang lingkaran secara diagonal`];
+    }
+
+    const correctAnsIndex = (i + 1) % 5;
+    let finalOptions = [];
+    for (let j = 0; j < 5; j++) {
+      const prefix = String.fromCharCode(65 + j);
+      finalOptions.push(`${prefix}. ${rawOptions[(j + i*2) % 5]}`);
     }
 
     res.push({
       id: `6-${i}`,
-      text: `Bentuk ${i}: ${actionText}`,
+      text: text,
       svg: svgStr,
-      options: [`A. ${optA}`, `B. ${optB}`, `C. ${optC}`, `D. ${optD}`, `E. ${optE}`],
-      answer: (i + 2) % 5
+      options: finalOptions,
+      answer: correctAnsIndex
     });
   }
   return res;
