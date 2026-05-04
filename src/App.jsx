@@ -185,9 +185,9 @@ function App() {
           <div style={{ marginTop: '3rem', opacity: 0.8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>Statistik Akses Portal PHTC:</p>
             <img 
-              src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FYafaooo%2Fcat-simulator&count_bg=%233B82F6&title_bg=%230F172A&icon=&icon_color=%23E7E7E7&title=Total+Peserta&edge_flat=false" 
+              src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FYafaooo%2Fcat-simulator&label=TOTAL%20PESERTA&countColor=%233b82f6" 
               alt="Visitor Count" 
-              style={{ borderRadius: '6px', boxShadow: '0 2px 10px rgba(0,0,0,0.3)' }}
+              style={{ borderRadius: '4px', boxShadow: '0 2px 10px rgba(0,0,0,0.3)' }}
             />
           </div>
         </div>
