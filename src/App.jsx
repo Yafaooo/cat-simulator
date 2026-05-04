@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SUBTESTS } from './data/questions';
+import { ref, get, set } from 'firebase/database';
+import { db } from './firebase';
 
 const VALID_ACCESS_CODES = [
   'PHTC-A1X9', 'PHTC-B2Y8', 'PHTC-C3Z7', 'PHTC-D4W6', 'PHTC-E5V5',
@@ -11,7 +13,15 @@ const VALID_ACCESS_CODES = [
 function App() {
   const [appState, setAppState] = useState('locked'); // locked, intro, test, result
   const [accessCode, setAccessCode] = useState('');
-  const [accessError, setAccessError] = useState(false);
+  const [accessError, setAccessError] = useState('');
+  const [deviceId] = useState(() => {
+    let id = localStorage.getItem('phtc_device_id');
+    if (!id) {
+      id = 'device-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+      localStorage.setItem('phtc_device_id', id);
+    }
+    return id;
+  });
   const [candidateName, setCandidateName] = useState('');
   const [currentSubtestIndex, setCurrentSubtestIndex] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -28,6 +38,44 @@ function App() {
       setAppState('intro');
     }
   }, []);
+  
+  const verifyAccessCode = async (code) => {
+    if (!VALID_ACCESS_CODES.includes(code)) {
+      setAccessError('Kode akses salah!');
+      return;
+    }
+
+    setAccessError('Memeriksa kode...');
+
+    try {
+      const codeRef = ref(db, `codes/${code}`);
+      const snapshot = await get(codeRef);
+      
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        if (data.deviceId === deviceId) {
+          // Code belongs to this device, allow access
+          localStorage.setItem('phtc_access_code', code);
+          setAppState('intro');
+        } else {
+          // Code belongs to another device
+          setAccessError('Kode sudah digunakan di perangkat lain!');
+        }
+      } else {
+        // Code is brand new, claim it for this device
+        await set(codeRef, {
+          used: true,
+          deviceId: deviceId,
+          claimedAt: new Date().toISOString()
+        });
+        localStorage.setItem('phtc_access_code', code);
+        setAppState('intro');
+      }
+    } catch (error) {
+      console.error(error);
+      setAccessError('Gagal terhubung ke server. Pastikan internet stabil.');
+    }
+  };
   
   // Start the test
   const startTest = () => {
@@ -196,23 +244,18 @@ function App() {
               value={accessCode}
               onChange={(e) => {
                 setAccessCode(e.target.value);
-                setAccessError(false);
+                setAccessError('');
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  if (VALID_ACCESS_CODES.includes(accessCode.trim())) {
-                    localStorage.setItem('phtc_access_code', accessCode.trim());
-                    setAppState('intro');
-                  } else {
-                    setAccessError(true);
-                  }
+                  verifyAccessCode(accessCode.trim());
                 }
               }}
               style={{
                 width: '100%',
                 padding: '16px',
                 borderRadius: '8px',
-                border: `1px solid ${accessError ? 'var(--danger)' : 'var(--primary)'}`,
+                border: `1px solid ${accessError && accessError !== 'Memeriksa kode...' ? 'var(--danger)' : 'var(--primary)'}`,
                 background: 'rgba(255,255,255,0.1)',
                 color: 'var(--text-main)',
                 fontSize: '1.2rem',
@@ -220,21 +263,18 @@ function App() {
                 outline: 'none'
               }}
             />
-            {accessError && <div style={{ color: 'var(--danger)', marginTop: '0.5rem', fontSize: '0.9rem' }}>Kode akses salah!</div>}
+            {accessError && accessError !== 'Memeriksa kode...' && <div style={{ color: 'var(--danger)', marginTop: '0.5rem', fontSize: '0.9rem' }}>{accessError}</div>}
+            {accessError === 'Memeriksa kode...' && <div style={{ color: 'var(--primary)', marginTop: '0.5rem', fontSize: '0.9rem' }}>Sedang memverifikasi ke database...</div>}
           </div>
           <button 
             className="btn"
-            style={{ padding: '16px 48px', fontSize: '1.2rem', width: '100%' }} 
+            style={{ padding: '16px 48px', fontSize: '1.2rem', width: '100%', opacity: accessError === 'Memeriksa kode...' ? 0.7 : 1 }} 
+            disabled={accessError === 'Memeriksa kode...'}
             onClick={() => {
-              if (VALID_ACCESS_CODES.includes(accessCode.trim())) {
-                localStorage.setItem('phtc_access_code', accessCode.trim());
-                setAppState('intro');
-              } else {
-                setAccessError(true);
-              }
+              verifyAccessCode(accessCode.trim());
             }}
           >
-            BUKA AKSES
+            {accessError === 'Memeriksa kode...' ? 'MEMERIKSA...' : 'BUKA AKSES'}
           </button>
         </div>
       )}
