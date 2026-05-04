@@ -154,7 +154,7 @@ function App() {
               Dapatkan Kode Akses Simulasi
             </p>
             <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
-              Untuk mendapatkan kode akses, silakan lakukan pembayaran sebesar <strong style={{ color: 'var(--accent)' }}>Rp 10.000</strong> dan kirimkan bukti pembayarannya melalui WhatsApp di bawah ini.
+              Untuk mendapatkan kode akses, silakan lakukan pembayaran sebesar <strong style={{ color: 'var(--accent)' }}>Rp 10.000</strong> ke nomor DANA: <strong style={{ color: 'var(--primary)', fontSize: '1.1rem' }}>082272463816</strong>. Setelah itu, kirimkan bukti transfernya melalui WhatsApp di bawah ini.
             </p>
             <a 
               href="https://wa.me/6282272463816?text=Halo%20Admin,%20saya%20ingin%20mengirimkan%20bukti%20pembayaran%20untuk%20mendapatkan%20kode%20akses%20Simulasi%20CAT." 
