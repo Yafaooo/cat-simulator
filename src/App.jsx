@@ -21,6 +21,8 @@ function App() {
     setAnswers({});
   };
 
+  const timeoutRef = React.useRef(null);
+
   // Timer Logic
   useEffect(() => {
     let timer;
@@ -36,17 +38,23 @@ function App() {
 
   // Handle Next Subtest / Finish
   const handleNextSubtest = () => {
-    if (currentSubtestIndex < SUBTESTS.length - 1) {
-      setCurrentSubtestIndex(prev => prev + 1);
-      setCurrentQuestionIndex(0);
-      setTimeLeft(SUBTESTS[currentSubtestIndex + 1].timeLimit);
-    } else {
-      setAppState('result');
-    }
+    setCurrentSubtestIndex(prev => {
+      if (prev < SUBTESTS.length - 1) {
+        const nextIdx = prev + 1;
+        setTimeLeft(SUBTESTS[nextIdx].timeLimit);
+        setCurrentQuestionIndex(0);
+        return nextIdx;
+      } else {
+        setAppState('result');
+        return prev;
+      }
+    });
   };
 
   // Handle Question Navigation
   const handleNextQuestion = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    
     if (currentQuestionIndex < currentSubtest.questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
@@ -55,6 +63,7 @@ function App() {
   };
 
   const handlePrevQuestion = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
     }
@@ -67,8 +76,9 @@ function App() {
       [currentQuestion.id]: optionIndex
     }));
     
-    // Auto-next after a short delay for better UX
-    setTimeout(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    
+    timeoutRef.current = setTimeout(() => {
       handleNextQuestion();
     }, 400);
   };
