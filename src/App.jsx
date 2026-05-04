@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { SUBTESTS } from './data/questions';
 
 function App() {
-  const [appState, setAppState] = useState('intro'); // intro, test, result
+  const [appState, setAppState] = useState('locked'); // locked, intro, test, result
+  const [accessCode, setAccessCode] = useState('');
+  const [accessError, setAccessError] = useState(false);
   const [candidateName, setCandidateName] = useState('');
   const [currentSubtestIndex, setCurrentSubtestIndex] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -141,6 +143,59 @@ function App() {
 
   return (
     <div className="app-container">
+      {appState === 'locked' && (
+        <div className="glass-panel animate-fade-in" style={{ padding: '3rem', textAlign: 'center', maxWidth: '500px', margin: '10vh auto' }}>
+          <h1 style={{ color: 'var(--primary)', marginBottom: '1rem', fontSize: '2rem' }}>
+            AKSES TERKUNCI
+          </h1>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>
+            Silakan masukkan kode akses khusus untuk membuka Simulasi CAT.
+          </p>
+          <div style={{ marginBottom: '2rem' }}>
+            <input 
+              type="password" 
+              placeholder="Masukkan Kode Akses..." 
+              value={accessCode}
+              onChange={(e) => {
+                setAccessCode(e.target.value);
+                setAccessError(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  if (accessCode === 'PHTC2026') setAppState('intro');
+                  else setAccessError(true);
+                }
+              }}
+              style={{
+                width: '100%',
+                padding: '16px',
+                borderRadius: '8px',
+                border: `1px solid ${accessError ? 'var(--danger)' : 'var(--primary)'}`,
+                background: 'rgba(255,255,255,0.1)',
+                color: 'var(--text-main)',
+                fontSize: '1.2rem',
+                textAlign: 'center',
+                outline: 'none'
+              }}
+            />
+            {accessError && <div style={{ color: 'var(--danger)', marginTop: '0.5rem', fontSize: '0.9rem' }}>Kode akses salah!</div>}
+          </div>
+          <button 
+            className="btn"
+            style={{ padding: '16px 48px', fontSize: '1.2rem', width: '100%' }} 
+            onClick={() => {
+              if (accessCode === 'PHTC2026') {
+                setAppState('intro');
+              } else {
+                setAccessError(true);
+              }
+            }}
+          >
+            BUKA AKSES
+          </button>
+        </div>
+      )}
+
       {appState === 'intro' && (
         <div className="glass-panel animate-fade-in" style={{ padding: '3rem', textAlign: 'center' }}>
           <h1 style={{ color: 'var(--primary)', marginBottom: '1rem', fontSize: '2rem' }}>
