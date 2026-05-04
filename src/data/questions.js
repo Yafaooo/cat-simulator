@@ -215,8 +215,13 @@ const genPola = () => {
 
     } else if (i <= 45) {
       // LOGIKA 3: Aritmatika Visual
-      const n = (i % 3) + 1; // start dots
-      const increment = (i % 2) + 1;
+      const n = (i % 5) + 1; // start dots (1-5)
+      const increment = (i % 3) + 1; // (1-3)
+      const isDecrease = i % 2 === 0;
+      
+      const n1 = isDecrease ? n + increment*2 + (i%2) : n;
+      const n2 = isDecrease ? n1 - increment : n + increment;
+      const n3 = isDecrease ? n2 - increment : n + increment*2;
       
       const drawDots = (cx, count) => {
         let dots = '';
@@ -227,19 +232,21 @@ const genPola = () => {
       };
 
       svgStr = svgWrapper(`
-        ${drawDots(60, n)}
-        ${drawDots(170, n + increment)}
-        ${drawDots(280, n + increment*2)}
+        ${drawDots(60, n1)}
+        ${drawDots(170, n2)}
+        ${drawDots(280, n3)}
       `);
       
-      text = `Pola Gambar ${i}: Aritmatika Objek. Analisis penambahan matriks titik pada deret spasial ini. Logika numerik apa yang menentukan susunan di kotak terakhir?`;
+      text = `Pola Gambar ${i}: Aritmatika Objek. Analisis penambahan/pengurangan matriks titik pada deret spasial ini. Logika numerik apa yang menentukan susunan di kotak terakhir?`;
+      
+      const opWord = isDecrease ? 'berkurang' : 'bertambah';
       
       rawOptions = [
-        `Jumlah titik bertambah sebanyak ${increment} setiap kotaknya secara sekuensial (Progresi Aritmatika).`,
-        `Jumlah titik dikalikan dua pada setiap langkah pemindahan matriks.`,
-        `Titik-titik tersebut membentuk formasi segitiga sama sisi pada akhir deret.`,
-        `Titik berkurang sejumlah ${increment} namun ukurannya membesar secara proporsional.`,
-        `Terdapat penggabungan baris dan kolom yang menghasilkan bilangan kuadrat murni.`
+        `Jumlah titik ${opWord} sebanyak ${increment} setiap kotaknya secara sekuensial (Progresi Aritmatika).`,
+        `Jumlah titik dikalikan secara eksponensial pada setiap langkah matriks dengan rasio ${increment}:1.`,
+        `Titik-titik tersebut membentuk formasi deret Fibonacci yang dimodifikasi pada tahap ke-${n}.`,
+        `Titik bertambah sejumlah ${increment + 1} namun menyusut ukurannya pada iterasi genap.`,
+        `Terdapat penggabungan susunan baris yang menghasilkan pola bilangan prima artifisial.`
       ];
       correctAnsIndex = 0;
 
@@ -247,7 +254,6 @@ const genPola = () => {
       // LOGIKA 4: Pergerakan Elementer (Matrix 3x3)
       const drawMatrix = (cx, cy, squarePos, circlePos) => {
         let grid = `<g transform="translate(${cx}, ${cy})">`;
-        // Draw 3x3 grid lines
         for(let k=0; k<=3; k++){
            grid += `<line x1="-30" y1="${-30+k*20}" x2="30" y2="${-30+k*20}" stroke="rgba(255,255,255,0.2)"/>`;
            grid += `<line x1="${-30+k*20}" y1="-30" x2="${-30+k*20}" y2="30" stroke="rgba(255,255,255,0.2)"/>`;
@@ -264,23 +270,38 @@ const genPola = () => {
         return grid;
       };
 
-      const sqPath = [0, 1, 2, 5, 8, 7, 6, 3]; // Clockwise edge walk
-      const circPath = [8, 7, 6, 3, 0, 1, 2, 5]; // Shifted edge walk
+      const sqPath = [0, 1, 2, 5, 8, 7, 6, 3]; 
+      const circPath = [8, 7, 6, 3, 0, 1, 2, 5]; 
+
+      // Pergerakan dinamis berdasarkan index soal
+      const startIndexSq = i % 8;
+      const startIndexCirc = (i + 3) % 8;
+      const stepSq = (i % 2 === 0) ? 1 : -1; // 1 searah jarum jam, -1 berlawanan
+      const stepCirc = (i % 3 === 0) ? 2 : 1; // jarak langkah lingkarang 1 atau 2
+      
+      const getPos = (pathArr, start, step, frame) => {
+        let idx = (start + step * frame) % 8;
+        if (idx < 0) idx += 8;
+        return pathArr[idx];
+      };
 
       svgStr = svgWrapper(`
-        ${drawMatrix(60, 60, sqPath[0], circPath[0])}
-        ${drawMatrix(170, 60, sqPath[1], circPath[1])}
-        ${drawMatrix(280, 60, sqPath[2], circPath[2])}
+        ${drawMatrix(60, 60, getPos(sqPath, startIndexSq, stepSq, 0), getPos(circPath, startIndexCirc, stepCirc, 0))}
+        ${drawMatrix(170, 60, getPos(sqPath, startIndexSq, stepSq, 1), getPos(circPath, startIndexCirc, stepCirc, 1))}
+        ${drawMatrix(280, 60, getPos(sqPath, startIndexSq, stepSq, 2), getPos(circPath, startIndexCirc, stepCirc, 2))}
       `);
       
-      text = `Pola Gambar ${i}: Translasi Grid Elementer. Persegi merah dan lingkaran hijau bergerak melintasi bingkai 3x3 berdasarkan lintasan khusus. Bagaimana letak keduanya di bingkai selanjutnya?`;
+      text = `Pola Gambar ${i}: Translasi Grid Elementer. Persegi merah dan lingkaran hijau bergerak mengitari bingkai 3x3 berdasarkan lintasan khusus. Analisis arah dan kecepatan langkah keduanya.`;
+      
+      const arahSq = stepSq > 0 ? 'searah jarum jam' : 'berlawanan arah jarum jam';
+      const langkahCirc = stepCirc === 1 ? '1 langkah' : '2 langkah sekaligus';
       
       rawOptions = [
-        `Persegi merah bergeser 1 langkah searah jarum jam mengitari tepi, lingkaran hijau juga mengitari tepi 1 langkah.`,
-        `Keduanya bergerak lurus memotong area titik tengah (koordinat pusat).`,
-        `Persegi merah terpantul menyilang, sedangkan lingkaran hijau bergerak berlawanan arah jarum jam.`,
-        `Keduanya berdiam diri di sudut untuk satu putaran sebelum melanjutkan rotasi.`,
-        `Terjadi tumpang tindih elemen di mana warna merah melebur dengan hijau.`
+        `Persegi merah bergerak ${Math.abs(stepSq)} langkah ${arahSq}, sementara lingkaran hijau bergerak ${langkahCirc} menyusuri tepi.`,
+        `Keduanya bergerak lurus memotong area titik pusat secara diagonal secara bersamaan.`,
+        `Persegi merah terpantul secara asimetris, sedangkan lingkaran hijau berotasi 180 derajat.`,
+        `Keduanya berdiam diri di sudut selama ${i%2 + 1} putaran sebelum melanjutkan rotasi.`,
+        `Terjadi tumpang tindih elemen di mana warna merah melebur dengan hijau di pusat koordinat.`
       ];
       correctAnsIndex = 0;
     }
