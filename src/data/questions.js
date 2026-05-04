@@ -134,59 +134,173 @@ const puData = [
   ["Pegunungan Himalaya terletak di benua...", "Eropa", "Afrika", "Amerika Utara", "Amerika Selatan", "Asia", 4]
 ];
 
-// === 4, 5, 6. TES SPASIAL (Visual/Gambar) ===
-// Didesain khusus agar 107 soal memiliki kalimat, teks, dan opsi yang 100% tidak ada yang sama (No Duplicates).
-
 const genPola = () => {
   let res = [];
+  
   for (let i = 1; i <= 55; i++) {
-    const color1 = `hsl(${i * 25 % 360}, 70%, 50%)`;
-    const color2 = `hsl(${(i * 25 + 90) % 360}, 70%, 50%)`;
-    
     let svgStr = '';
-    if (i % 3 === 0) {
-      svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" style="background:#0f172a;border-radius:8px">
-        <circle cx="${30 + (i%5)*5}" cy="50" r="${10 + i%3}" fill="${color1}" />
-        <rect x="120" y="${20 + i%4}" width="30" height="30" fill="none" stroke="white" stroke-width="2" />
-        <polygon points="230,80 250,20 270,80" fill="${color2}" transform="rotate(${i*45} 250 50)" />
-        <text x="350" y="60" fill="white" font-size="40">?</text>
-      </svg>`;
-    } else if (i % 3 === 1) {
-      svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" style="background:#1e293b;border-radius:8px">
-        <line x1="20" y1="20" x2="${60 + i%10}" y2="${80 - i%10}" stroke="${color1}" stroke-width="4"/>
-        <line x1="120" y1="80" x2="${160 - i%5}" y2="${20 + i%5}" stroke="white" stroke-width="4"/>
-        <circle cx="250" cy="50" r="${20 - i%4}" fill="none" stroke="${color2}" stroke-width="3" stroke-dasharray="${i%5 + 2},${i%3 + 2}"/>
-        <text x="350" y="60" fill="white" font-size="40">?</text>
-      </svg>`;
+    let text = '';
+    let rawOptions = [];
+    let correctAnsIndex = 0;
+
+    // ViewBox standar untuk deret 4 panel
+    const svgWrapper = (content) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 120" style="background:#0f172a;border-radius:8px">
+      <!-- Bingkai Panel -->
+      <rect x="20" y="20" width="80" height="80" fill="none" stroke="var(--glass-border)" stroke-width="2"/>
+      <rect x="130" y="20" width="80" height="80" fill="none" stroke="var(--glass-border)" stroke-width="2"/>
+      <rect x="240" y="20" width="80" height="80" fill="none" stroke="var(--glass-border)" stroke-width="2"/>
+      <rect x="350" y="20" width="80" height="80" fill="none" stroke="var(--primary)" stroke-width="3" stroke-dasharray="5,5"/>
+      <text x="380" y="68" fill="var(--primary)" font-size="28" font-weight="bold">?</text>
+      <!-- Panah -->
+      <path d="M 105 60 L 125 60 M 120 55 L 125 60 L 120 65" fill="none" stroke="white" stroke-width="2"/>
+      <path d="M 215 60 L 235 60 M 230 55 L 235 60 L 230 65" fill="none" stroke="white" stroke-width="2"/>
+      <path d="M 325 60 L 345 60 M 340 55 L 345 60 L 340 65" fill="none" stroke="white" stroke-width="2"/>
+      ${content}
+    </svg>`;
+
+    if (i <= 15) {
+      // LOGIKA 1: Rotasi Bertahap (Progressive Difficulty)
+      const rotStep1 = 45 + (i * 15); // Semakin sulit rotasinya tidak wajar
+      const rotStep2 = -90 - (i * 15); // Elemen kedua mutar balik
+      
+      const drawRotShape = (cx, cy, rot1, rot2) => `
+        <g transform="translate(${cx}, ${cy})">
+          <polygon points="0,-25 15,15 -15,15" fill="var(--success)" transform="rotate(${rot1})" opacity="0.8"/>
+          <circle cx="0" cy="-20" r="5" fill="white" transform="rotate(${rot2})"/>
+        </g>`;
+        
+      svgStr = svgWrapper(`
+        ${drawRotShape(60, 60, 0, 0)}
+        ${drawRotShape(170, 60, rotStep1, rotStep2)}
+        ${drawRotShape(280, 60, rotStep1*2, rotStep2*2)}
+      `);
+      
+      text = `Pola Gambar ${i}: Analisis Rotasi Visual. Segitiga hijau dan titik putih berputar pada poros tengah dengan derajat yang konstan namun arah yang berbeda. Berapakah derajat rotasi yang terbentuk pada kotak ke-4?`;
+      rawOptions = [
+        `Segitiga hijau berotasi sebesar ${rotStep1*3}° searah putaran jarum, titik putih rotasi ${rotStep2*3}° berlawanan arah.`,
+        `Segitiga dan titik putih berotasi bersama-sama ke arah ${rotStep1*4}°.`,
+        `Segitiga hijau diam di tempat, sementara titik putih bergeser ${rotStep2*1.5}°.`,
+        `Rotasi berhenti pada derajat ${rotStep1*2}° dan elemen mengecil.`,
+        `Keduanya berputar 180° membentuk cerminan vertikal sempurna.`
+      ];
+      correctAnsIndex = 0;
+
+    } else if (i <= 30) {
+      // LOGIKA 2: Pencerminan (Mirroring) Analogi A:B :: C:D
+      const shapePath = `M -15,-20 L 20,-10 L 10,25 L -25,10 Z`;
+      const isHorizontal = i % 2 === 0;
+      const t1 = isHorizontal ? `scale(-1, 1)` : `scale(1, -1)`; // A -> B (Cermin)
+      
+      const drawMirror = (cx, cy, transformStr, color) => `
+        <g transform="translate(${cx}, ${cy})">
+          <path d="${shapePath}" fill="${color}" transform="${transformStr}"/>
+        </g>`;
+
+      svgStr = svgWrapper(`
+        ${drawMirror(60, 60, "scale(1,1)", "var(--primary)")}
+        ${drawMirror(170, 60, t1, "var(--primary)")}
+        ${drawMirror(280, 60, "rotate(90)", "var(--accent)")}
+      `);
+      
+      text = `Pola Gambar ${i}: Analogi Pencerminan. Jika Gambar 1 berubah menjadi Gambar 2 melalui suatu hukum refleksi spasial, gunakan hukum yang sama untuk mengubah Gambar 3 menjadi Gambar 4.`;
+      
+      rawOptions = [
+        `Bangun oranye mengalami refleksi ${isHorizontal ? 'Horizontal (Kiri-Kanan)' : 'Vertikal (Atas-Bawah)'} sempurna.`,
+        `Bangun oranye diputar 180 derajat tanpa mengalami pencerminan.`,
+        `Bangun oranye mengalami pengecilan skala sebesar 50% dan bergeser ke sudut.`,
+        `Sudut-sudut bangun bertambah lancip seiring dengan rotasi 45 derajat.`,
+        `Mengalami inversi warna dan diproyeksikan secara diagonal menyilang.`
+      ];
+      correctAnsIndex = 0;
+
+    } else if (i <= 45) {
+      // LOGIKA 3: Aritmatika Visual
+      const n = (i % 3) + 1; // start dots
+      const increment = (i % 2) + 1;
+      
+      const drawDots = (cx, count) => {
+        let dots = '';
+        for(let d=0; d<count; d++) {
+           dots += `<circle cx="${cx - 15 + (d%3)*15}" cy="${45 + Math.floor(d/3)*15}" r="4" fill="white"/>`;
+        }
+        return dots;
+      };
+
+      svgStr = svgWrapper(`
+        ${drawDots(60, n)}
+        ${drawDots(170, n + increment)}
+        ${drawDots(280, n + increment*2)}
+      `);
+      
+      text = `Pola Gambar ${i}: Aritmatika Objek. Analisis penambahan matriks titik pada deret spasial ini. Logika numerik apa yang menentukan susunan di kotak terakhir?`;
+      
+      rawOptions = [
+        `Jumlah titik bertambah sebanyak ${increment} setiap kotaknya secara sekuensial (Progresi Aritmatika).`,
+        `Jumlah titik dikalikan dua pada setiap langkah pemindahan matriks.`,
+        `Titik-titik tersebut membentuk formasi segitiga sama sisi pada akhir deret.`,
+        `Titik berkurang sejumlah ${increment} namun ukurannya membesar secara proporsional.`,
+        `Terdapat penggabungan baris dan kolom yang menghasilkan bilangan kuadrat murni.`
+      ];
+      correctAnsIndex = 0;
+
     } else {
-      svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" style="background:#020617;border-radius:8px">
-        <rect x="20" y="30" width="40" height="40" rx="${i%20}" fill="${color2}" />
-        <path d="M130,70 Q150,${20 + i%20} 170,70 T210,70" fill="none" stroke="white" stroke-width="3"/>
-        <polygon points="250,50 260,30 270,50 260,70" fill="${color1}" />
-        <text x="350" y="60" fill="white" font-size="40">?</text>
-      </svg>`;
+      // LOGIKA 4: Pergerakan Elementer (Matrix 3x3)
+      const drawMatrix = (cx, cy, squarePos, circlePos) => {
+        let grid = `<g transform="translate(${cx}, ${cy})">`;
+        // Draw 3x3 grid lines
+        for(let k=0; k<=3; k++){
+           grid += `<line x1="-30" y1="${-30+k*20}" x2="30" y2="${-30+k*20}" stroke="rgba(255,255,255,0.2)"/>`;
+           grid += `<line x1="${-30+k*20}" y1="-30" x2="${-30+k*20}" y2="30" stroke="rgba(255,255,255,0.2)"/>`;
+        }
+        const sqX = -20 + (squarePos%3)*20;
+        const sqY = -20 + Math.floor(squarePos/3)*20;
+        grid += `<rect x="${sqX-6}" y="${sqY-6}" width="12" height="12" fill="var(--danger)"/>`;
+        
+        const cX = -20 + (circlePos%3)*20;
+        const cY = -20 + Math.floor(circlePos/3)*20;
+        grid += `<circle cx="${cX}" cy="${cY}" r="6" fill="var(--success)"/>`;
+        
+        grid += `</g>`;
+        return grid;
+      };
+
+      const sqPath = [0, 1, 2, 5, 8, 7, 6, 3]; // Clockwise edge walk
+      const circPath = [8, 7, 6, 3, 0, 1, 2, 5]; // Shifted edge walk
+
+      svgStr = svgWrapper(`
+        ${drawMatrix(60, 60, sqPath[0], circPath[0])}
+        ${drawMatrix(170, 60, sqPath[1], circPath[1])}
+        ${drawMatrix(280, 60, sqPath[2], circPath[2])}
+      `);
+      
+      text = `Pola Gambar ${i}: Translasi Grid Elementer. Persegi merah dan lingkaran hijau bergerak melintasi bingkai 3x3 berdasarkan lintasan khusus. Bagaimana letak keduanya di bingkai selanjutnya?`;
+      
+      rawOptions = [
+        `Persegi merah bergeser 1 langkah searah jarum jam mengitari tepi, lingkaran hijau juga mengitari tepi 1 langkah.`,
+        `Keduanya bergerak lurus memotong area titik tengah (koordinat pusat).`,
+        `Persegi merah terpantul menyilang, sedangkan lingkaran hijau bergerak berlawanan arah jarum jam.`,
+        `Keduanya berdiam diri di sudut untuk satu putaran sebelum melanjutkan rotasi.`,
+        `Terjadi tumpang tindih elemen di mana warna merah melebur dengan hijau.`
+      ];
+      correctAnsIndex = 0;
     }
 
-    const text = `Pola Gambar ${i}: Analisis transformasi matriks visual ke-${i}. Berdasarkan pergerakan sudut sebesar ${i*5} derajat pada elemen sebelumnya, tentukan probabilitas pola di kotak tanda tanya.`;
-    
-    // Opsi 100% berbeda menggunakan perhitungan i
-    const rawOptions = [
-      `Rotasi jarum jam bergeser tepat ${10 + i} derajat dengan perubahan warna ke-${i}`,
-      `Penambahan ${i%5 + 1} garis vertikal dan penyusutan radius sebesar ${i*2}%`,
-      `Peleburan dua bentuk asimetris yang menghasilkan poligon dengan ${4 + (i%4)} sisi`,
-      `Elemen utama memantul sejauh ${i*3} unit ke arah diagonal atas`,
-      `Pembalikan warna (inversi) dengan tingkat pudar mencapai margin ${i*1.5}%`
-    ];
-
-    const correctAnsIndex = (i * 7) % 5;
+    // Mengacak opsi jawaban agar tidak selalu A
     let finalOptions = [];
+    const randomizedCorrectIndex = (i * 7) % 5; 
+    let tempRaw = [...rawOptions];
+    
+    // Pindahkan opsi benar (index 0) ke posisi randomizedCorrectIndex
+    const correctStr = tempRaw.splice(0, 1)[0];
+    tempRaw.splice(randomizedCorrectIndex, 0, correctStr);
+
     for (let j = 0; j < 5; j++) {
       const prefix = String.fromCharCode(65 + j);
-      finalOptions.push(`${prefix}. ${rawOptions[(j + i) % 5]}`);
+      finalOptions.push(`${prefix}. ${tempRaw[j]}`);
     }
 
     res.push({
-      id: `4-${i}`, text: text, svg: svgStr, options: finalOptions, answer: correctAnsIndex
+      id: `4-${i}`, text: text, svg: svgStr, options: finalOptions, answer: randomizedCorrectIndex
     });
   }
   return res;
@@ -194,43 +308,106 @@ const genPola = () => {
 
 const genRuang = () => {
   let res = [];
+  
+  // Fungsi Helper Menggambar Kubus 3D Isometrik
+  const drawIsometricCube = (cx, cy, color, symTop, symLeft, symRight) => {
+    return `
+      <g transform="translate(${cx - 100}, ${cy - 100})">
+        <!-- Top Face -->
+        <polygon points="100,40 50,65 100,90 150,65" fill="${color}" opacity="0.9" stroke="white" stroke-width="2"/>
+        <text x="92" y="70" fill="white" font-size="20" font-weight="bold">${symTop}</text>
+        
+        <!-- Left Face -->
+        <polygon points="50,65 100,90 100,150 50,125" fill="${color}" opacity="0.6" stroke="white" stroke-width="2"/>
+        <text x="68" y="115" fill="white" font-size="20" font-weight="bold">${symLeft}</text>
+
+        <!-- Right Face -->
+        <polygon points="150,65 100,90 100,150 150,125" fill="${color}" opacity="0.3" stroke="white" stroke-width="2"/>
+        <text x="118" y="115" fill="white" font-size="20" font-weight="bold">${symRight}</text>
+      </g>
+    `;
+  };
+
   for (let i = 1; i <= 27; i++) {
     const color = `hsl(${(i * 40 + 100) % 360}, 60%, 45%)`;
-    const topWingY = 60 + (i%2)*40;
-    const botWingY = 60 + (i%3)*40;
+    let svgStr = '';
+    let text = '';
+    let rawOptions = [];
     
-    const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" style="background:#1e293b;border-radius:8px">
-      <g stroke="${color}" stroke-width="2" fill="none">
-        <rect x="80" y="20" width="40" height="40"/>
-        <rect x="80" y="60" width="40" height="40"/>
-        <rect x="80" y="100" width="40" height="40"/>
-        <rect x="80" y="140" width="40" height="40"/>
-        <rect x="40" y="${topWingY}" width="40" height="40"/>
-        <rect x="120" y="${botWingY}" width="40" height="40"/>
-        <circle cx="100" cy="80" r="10" fill="white" opacity="0.3"/>
-        <text x="60" y="${topWingY + 25}" fill="white" font-size="16" font-family="sans-serif">X</text>
-      </g>
-    </svg>`;
-    
-    const text = `Abstraksi Ruang ${i}: Perhatikan prototipe jaring-jaring berdimensi varian ${i}. Jika jaring-jaring ini dilipat dengan torsi internal ${i*2} derajat, evaluasi proyeksi sisi bertanda 'X'.`;
-    
-    const rawOptions = [
-      `Sisi 'X' akan tepat berhadapan dengan jarak proyektil absolut ${i*1.2} cm dari lingkaran`,
-      `Membentuk sudut lipat siku-siku di kuadran spasial ke-${(i%4)+1}`,
-      `Terkunci sebagai penutup atas (atap) dengan tegangan permukaan ${i+5} Newton`,
-      `Menyilang di bawah alas dan bersentuhan dengan ${i%3 + 2} titik rusuk buta`,
-      `Permukaannya akan sejajar dengan sumbu Y pada orientasi kemiringan ${i*5} derajat`
-    ];
+    // Simbol Dinamis
+    const symbols = ['X', 'O', '★', '▲', '■', '●'];
+    const s1 = symbols[i % 6];
+    const s2 = symbols[(i+1) % 6];
+    const s3 = symbols[(i+2) % 6];
 
-    const correctAnsIndex = (i * 3) % 5;
+    if (i % 2 !== 0) {
+      // LOGIKA 1: Jaring-jaring ke Kubus
+      const topWingY = 60 + (i%2)*40;
+      
+      svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" style="background:#1e293b;border-radius:8px">
+        <g stroke="${color}" stroke-width="2" fill="none">
+          <rect x="80" y="20" width="40" height="40"/>
+          <text x="92" y="45" fill="white" font-size="16">${s1}</text>
+          
+          <rect x="80" y="60" width="40" height="40"/>
+          <text x="92" y="85" fill="white" font-size="16">${s2}</text>
+          
+          <rect x="80" y="100" width="40" height="40"/>
+          <text x="92" y="125" fill="white" font-size="16">${s3}</text>
+          
+          <rect x="80" y="140" width="40" height="40"/>
+          <rect x="40" y="${topWingY}" width="40" height="40"/>
+          <rect x="120" y="60" width="40" height="40"/>
+        </g>
+      </svg>`;
+      
+      text = `Abstraksi Ruang ${i}: Jika jaring-jaring 2D di atas dilipat untuk membentuk sebuah kubus utuh, manakah pernyataan letak simbol yang BENAR?`;
+      
+      rawOptions = [
+        `Sisi bersimbol '${s1}' akan berhadapan langsung (sejajar) dengan sisi bersimbol '${s3}'.`,
+        `Simbol '${s2}' akan selalu menempel sejajar di samping simbol '${s1}'.`,
+        `Sisi kosong di sebelah kanan akan menjadi alas jika sisi '${s2}' menjadi atap.`,
+        `Ketiga simbol '${s1}', '${s2}', dan '${s3}' akan bertemu di satu titik sudut yang sama.`,
+        `Mustahil melipat jaring-jaring ini menjadi kubus karena ada sisi yang tumpang tindih.`
+      ];
+    } else {
+      // LOGIKA 2: Rotasi 3D Kubus
+      const rotSteps = (i % 3) + 1;
+      
+      svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" style="background:#020617;border-radius:8px">
+        ${drawIsometricCube(100, 100, color, s1, s2, s3)}
+        
+        <text x="200" y="100" fill="white" font-size="20">➡ Rotasi 3D ➡</text>
+        
+        ${drawIsometricCube(330, 100, 'rgba(255,255,255,0.1)', '?', '?', '?')}
+      </svg>`;
+      
+      text = `Abstraksi Ruang ${i}: Rotasi Spasial. Jika kubus di sebelah kiri diputar ${rotSteps} kali ke kanan (pada sumbu Y) dan 1 kali ke depan (sumbu X), di manakah letak simbol '${s1}' sekarang?`;
+      
+      rawOptions = [
+        `Simbol '${s1}' akan berpindah menjadi sisi belakang (tidak terlihat dari depan).`,
+        `Simbol '${s1}' akan tetap berada di sisi atas (atap) kubus.`,
+        `Simbol '${s1}' akan bergeser menjadi sisi kanan kubus.`,
+        `Simbol '${s1}' akan bergeser menjadi sisi kiri kubus.`,
+        `Simbol '${s1}' akan berpindah menjadi sisi alas (bawah) kubus.`
+      ];
+    }
+
+    // Mengacak opsi jawaban
     let finalOptions = [];
+    const randomizedCorrectIndex = (i * 5) % 5; 
+    let tempRaw = [...rawOptions];
+    
+    const correctStr = tempRaw.splice(0, 1)[0];
+    tempRaw.splice(randomizedCorrectIndex, 0, correctStr);
+
     for (let j = 0; j < 5; j++) {
       const prefix = String.fromCharCode(65 + j);
-      finalOptions.push(`${prefix}. ${rawOptions[(j + i) % 5]}`);
+      finalOptions.push(`${prefix}. ${tempRaw[j]}`);
     }
 
     res.push({
-      id: `5-${i}`, text: text, svg: svgStr, options: finalOptions, answer: correctAnsIndex
+      id: `5-${i}`, text: text, svg: svgStr, options: finalOptions, answer: randomizedCorrectIndex
     });
   }
   return res;
@@ -238,35 +415,107 @@ const genRuang = () => {
 
 const genBentuk = () => {
   let res = [];
+  
   for (let i = 1; i <= 25; i++) {
-    const cx = 100 + (i%5)*5;
-    const cy = 100 - (i%4)*5;
-    const rot = i*15;
-    const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" style="background:#0f172a;border-radius:8px">
-      <path d="M${40+i},${30+i} Q${100-i},${10+i*2} ${160-i},${40+i} T${180-i},${150-i} Q${100+i},${190-i} ${30+i},${160-i} Z" fill="var(--text-muted)" opacity="0.5" transform="rotate(${rot} 100 100)"/>
-      <circle cx="${cx}" cy="${cy}" r="${20 + i%10}" fill="#0f172a"/>
-      <rect x="${cx - 10}" y="${cy - 30}" width="${20+i%5}" height="${60+i%5}" fill="white" transform="rotate(${-rot} ${cx} ${cy})" opacity="0.2"/>
-    </svg>`;
-    
-    const text = `Bentuk ${i}: Sebuah siluet abstrak ditembakkan cahaya bervolume ${i*10} lumens dari kemiringan ${rot}°. Identifikasi hasil bias bentuk yang paling akurat dari spesifikasi benda ini.`;
-    
-    const rawOptions = [
-      `Distorsi bayangan memanjang ke sektor radial dengan rasio elongasi ${1 + (i*0.1)}x`,
-      `Luas area transparan fiktif menempati tepat ${15 + i*2}% dari agregat massa`,
-      `Menghasilkan belahan penampang melintang dengan defleksi bentuk tipe-${i%5}`,
-      `Jumlah batas lengkung kurvatur mencapai orde ke-${3 + i%4} secara asimetris`,
-      `Konsentrasi objek putih memotong pusat bayangan di titik ekuivalen X:${i+10}, Y:${i+20}`
-    ];
+    let svgStr = '';
+    let text = '';
+    let rawOptions = [];
 
-    const correctAnsIndex = (i * 11) % 5;
+    if (i % 2 !== 0) {
+      // LOGIKA 1: Odd One Out (Mencari yang berbeda subtil)
+      // Menggambar 5 objek berjajar
+      
+      const drawShape = (cx, isOdd) => {
+        // isOdd membedakan sedikit ketebalan garis atau rotasi
+        const strokeW = isOdd ? 4 : 2;
+        const radius = isOdd ? 18 : 20;
+        return `
+          <g transform="translate(${cx}, 50)">
+            <rect x="-20" y="-20" width="40" height="40" fill="none" stroke="white" stroke-width="1"/>
+            <polygon points="0,-15 15,10 -15,10" fill="var(--accent)"/>
+            <circle cx="0" cy="0" r="${radius}" fill="none" stroke="var(--primary)" stroke-width="${strokeW}"/>
+          </g>
+        `;
+      };
+
+      const oddIndex = i % 5; // Posisi objek yang berbeda
+      
+      svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 100" style="background:#0f172a;border-radius:8px">
+        <text x="50" y="20" fill="var(--text-muted)" font-size="12">Objek 1</text>
+        ${drawShape(65, oddIndex === 0)}
+        
+        <text x="140" y="20" fill="var(--text-muted)" font-size="12">Objek 2</text>
+        ${drawShape(155, oddIndex === 1)}
+        
+        <text x="230" y="20" fill="var(--text-muted)" font-size="12">Objek 3</text>
+        ${drawShape(245, oddIndex === 2)}
+        
+        <text x="320" y="20" fill="var(--text-muted)" font-size="12">Objek 4</text>
+        ${drawShape(335, oddIndex === 3)}
+        
+        <text x="410" y="20" fill="var(--text-muted)" font-size="12">Objek 5</text>
+        ${drawShape(425, oddIndex === 4)}
+      </svg>`;
+      
+      text = `Bentuk ${i}: Odd One Out. Dari kelima objek geometri di atas, terdapat satu objek yang memiliki karakteristik struktural yang sedikit berbeda dari keempat lainnya. Manakah objek tersebut?`;
+      
+      rawOptions = [
+        `Objek ${oddIndex + 1} (Ketebalan cincin dan rasio radius berbeda secara subtil)`,
+        `Objek ${(oddIndex + 1) % 5 + 1} (Sudut segitiga tidak simetris)`,
+        `Objek ${(oddIndex + 2) % 5 + 1} (Garis tepi kotak lebih memudar)`,
+        `Objek ${(oddIndex + 3) % 5 + 1} (Rotasi meleset 2 derajat dari ekuator)`,
+        `Tidak ada yang berbeda, kelimanya adalah kloningan identik (Pertanyaan Jebakan)`
+      ];
+
+    } else {
+      // LOGIKA 2: Shape Completion
+      const rot = i * 15;
+      
+      svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 150" style="background:#1e293b;border-radius:8px">
+        <g transform="translate(100, 75)">
+          <!-- Bangun utama yang dipotong -->
+          <path d="M-40,-40 L40,-40 L40,40 L-40,40 Z" fill="var(--text-muted)" opacity="0.3"/>
+          <path d="M-40,-40 L40,-40 L40,40 L-40,40 Z" fill="var(--primary)" clip-path="url(#cut)"/>
+          
+          <clipPath id="cut">
+             <polygon points="-50,-50 50,-50 50,50 -50,50" />
+             <!-- The negative space (cutout) -->
+             <polygon points="10,-10 50,20 10,50" transform="rotate(${rot})" />
+          </clipPath>
+          
+          <!-- Indikator potong -->
+          <polygon points="10,-10 50,20 10,50" transform="rotate(${rot})" fill="none" stroke="white" stroke-width="2" stroke-dasharray="4,4"/>
+        </g>
+        
+        <text x="230" y="75" fill="white" font-size="20">Mencari Pecahan ➡</text>
+      </svg>`;
+      
+      text = `Bentuk ${i}: Shape Completion. Bangun persegi di sebelah kiri telah dipotong dengan pola asimetris tertentu (garis putus-putus). Analisis sudut potongan tersebut, kepingan seperti apa yang dibutuhkan untuk melengkapinya?`;
+      
+      rawOptions = [
+        `Kepingan berbentuk segitiga sembarang dengan sudut rotasi ${rot}° yang sesuai dengan celah.`,
+        `Kepingan berbentuk trapesium dengan sisi sejajar menempel pada dinding kotak.`,
+        `Kepingan poligon tak beraturan yang memiliki 4 titik sudut.`,
+        `Kepingan segitiga sama kaki dengan orientasi terbalik 180°.`,
+        `Bagian tersebut tidak terpotong, melainkan dilipat ke arah dalam (ilusi optik).`
+      ];
+    }
+
+    // Mengacak opsi jawaban
     let finalOptions = [];
+    const randomizedCorrectIndex = (i * 3) % 5; 
+    let tempRaw = [...rawOptions];
+    
+    const correctStr = tempRaw.splice(0, 1)[0];
+    tempRaw.splice(randomizedCorrectIndex, 0, correctStr);
+
     for (let j = 0; j < 5; j++) {
       const prefix = String.fromCharCode(65 + j);
-      finalOptions.push(`${prefix}. ${rawOptions[(j + i) % 5]}`);
+      finalOptions.push(`${prefix}. ${tempRaw[j]}`);
     }
 
     res.push({
-      id: `6-${i}`, text: text, svg: svgStr, options: finalOptions, answer: correctAnsIndex
+      id: `6-${i}`, text: text, svg: svgStr, options: finalOptions, answer: randomizedCorrectIndex
     });
   }
   return res;
