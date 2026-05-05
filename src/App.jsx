@@ -422,15 +422,23 @@ function App() {
             )}
 
             <div style={{ flex: 1 }}>
-              {currentQuestion.options.map((opt, idx) => (
-                <button 
-                  key={idx} 
-                  className={`option-btn ${answers[currentQuestion.id] === idx ? 'selected' : ''}`}
-                  onClick={() => handleSelectAnswer(idx)}
-                >
-                  {opt}
-                </button>
-              ))}
+              {currentQuestion.options.map((opt, idx) => {
+                const isSvg = typeof opt === 'string' && opt.includes('<svg');
+                return (
+                  <button 
+                    key={idx} 
+                    className={`option-btn ${answers[currentQuestion.id] === idx ? 'selected' : ''}`}
+                    onClick={() => handleSelectAnswer(idx)}
+                    style={isSvg ? { padding: '10px', display: 'flex', alignItems: 'center' } : {}}
+                  >
+                    {isSvg ? (
+                      <div dangerouslySetInnerHTML={{ __html: opt }} style={{ pointerEvents: 'none', display: 'flex', width: '100%', alignItems: 'center' }} />
+                    ) : (
+                      opt
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Navigation */}
