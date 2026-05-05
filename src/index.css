@@ -229,6 +229,51 @@ body::before {
   margin-bottom: 8px;
 }
 
+/* Responsive Locked Screen Layout */
+.locked-screen-layout {
+  padding: 2.5rem;
+  text-align: center;
+  max-width: 500px;
+  margin: 10vh auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.locked-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.locked-right {
+  display: flex;
+  flex-direction: column;
+}
+
+@media screen and (min-width: 900px) {
+  .locked-screen-layout {
+    max-width: 1000px;
+    flex-direction: row;
+    align-items: stretch;
+    text-align: left;
+    gap: 4rem;
+    padding: 4rem;
+  }
+  
+  .locked-left {
+    flex: 1;
+    border-right: 1px solid var(--glass-border);
+    padding-right: 4rem;
+  }
+  
+  .locked-right {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
 /* Responsive & Full Screen Layout */
 .app-container {
   padding: 3rem;
