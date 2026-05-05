@@ -240,7 +240,7 @@ function App() {
               Untuk mendapatkan kode akses, silakan lakukan pembayaran sebesar <strong style={{ color: 'var(--accent)' }}>Rp 10.000</strong> ke nomor DANA: <strong style={{ color: 'var(--primary)', fontSize: '1.1rem' }}>082272463816</strong>. Setelah itu, kirimkan bukti transfernya melalui WhatsApp di bawah ini.
             </p>
             <p style={{ fontSize: '0.95rem', color: 'var(--text-main)', marginTop: '0.5rem', fontStyle: 'italic' }}>
-              "Sekali bayar bisa dipakai seumur hidup sampai bosan! Intinya kocak dan lucu, plus soal-soalnya di-update otomatis setiap 3 jam sekali loh! 🚀"
+              "Cukup bayar sekali (lebih murah dari seblak!), kode akses ini bisa dipakai seumur hidup sampai jari Anda keriting! Tenang saja, soal-soalnya di-update otomatis tiap 3 jam sekali biar otak Anda tidak sempat bernapas. 🤯🔥"
             </p>
             <a 
               href="https://wa.me/6282272463816?text=Halo%20Admin,%20saya%20ingin%20mengirimkan%20bukti%20pembayaran%20untuk%20mendapatkan%20kode%20akses%20Simulasi%20CAT." 
