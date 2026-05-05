@@ -176,7 +176,7 @@ const genPola = () => {
         ${drawShape(280, 60, rStep*2)}
       `);
       
-      text = \`Pola Gambar \${i}: Analisis pola perubahan rotasi dari gambar pertama hingga ketiga, lalu temukan gambar keempat yang tepat.\`;
+      text = `Pola Gambar ${i}: Analisis pola perubahan rotasi dari gambar pertama hingga ketiga, lalu temukan gambar keempat yang tepat.`;
       
       // Generate 5 SVG options
       rawOptions = [];
@@ -185,8 +185,8 @@ const genPola = () => {
         const optionRot = correctRot + (j * 45); // Fake options have different rotations
         // For option SVG, cx=50, cy=50
         const optShape = isSquare 
-            ? \`<rect x="30" y="30" width="40" height="40" fill="var(--success)" transform="rotate(\${optionRot}, 50, 50)" />\`
-            : \`<polygon points="50,25 70,65 30,65" fill="var(--accent)" transform="rotate(\${optionRot}, 50, 50)" />\`;
+            ? `<rect x="30" y="30" width="40" height="40" fill="var(--success)" transform="rotate(${optionRot}, 50, 50)" />`
+            : `<polygon points="50,25 70,65 30,65" fill="var(--accent)" transform="rotate(${optionRot}, 50, 50)" />`;
         rawOptions.push(svgOptionWrapper(optShape));
       }
 
@@ -198,7 +198,7 @@ const genPola = () => {
       const drawDots = (cx, cy, count) => {
         let dots = '';
         for(let d=0; d<count; d++) {
-            dots += \`<circle cx="\${cx - 15 + (d%3)*15}" cy="\${cy - 15 + Math.floor(d/3)*15}" r="4" fill="white"/>\`;
+            dots += `<circle cx="${cx - 15 + (d%3)*15}" cy="${cy - 15 + Math.floor(d/3)*15}" r="4" fill="white"/>`;
         }
         return dots;
       };
@@ -209,7 +209,7 @@ const genPola = () => {
         ${drawDots(280, 60, startDots + stepDots*2)}
       `);
       
-      text = \`Pola Gambar \${i}: Amati penambahan elemen pada kotak secara progresif, berapakah konfigurasi elemen di kotak keempat?\`;
+      text = `Pola Gambar ${i}: Amati penambahan elemen pada kotak secara progresif, berapakah konfigurasi elemen di kotak keempat?`;
       
       rawOptions = [];
       const correctCount = startDots + stepDots * 3;
@@ -222,28 +222,28 @@ const genPola = () => {
     } else {
       // LOGIKA 3: Refleksi/Cermin
       const isHoriz = i % 2 === 0;
-      const t1 = isHoriz ? \`scale(-1, 1) translate(-120, 0)\` : \`scale(1, -1) translate(0, -120)\`;
+      const t1 = isHoriz ? `scale(-1, 1) translate(-120, 0)` : `scale(1, -1) translate(0, -120)`;
       
       const drawTriangle = (cx, cy, trans) => {
-         return \`<polygon points="\${cx},\${cy-20} \${cx+25},\${cy+15} \${cx-10},\${cy+5}" fill="var(--primary)" transform="\${trans}"/>\`;
+         return `<polygon points="${cx},${cy-20} ${cx+25},${cy+15} ${cx-10},${cy+5}" fill="var(--primary)" transform="${trans}"/>`;
       }
 
       svgStr = svgWrapper(`
         ${drawTriangle(60, 60, "")}
-        ${drawTriangle(60, 60, isHoriz ? \`scale(-1, 1) translate(-230, 0)\` : \`scale(1, -1) translate(0, -120)\`)}
+        ${drawTriangle(60, 60, isHoriz ? `scale(-1, 1) translate(-230, 0)` : `scale(1, -1) translate(0, -120)`)}
         ${drawTriangle(280, 60, "rotate(90, 280, 60)")}
       `);
       
-      text = \`Pola Gambar \${i}: Jika Kotak 1 berubah menjadi Kotak 2 dengan sebuah hukum pencerminan, terapkan hukum yang sama dari Kotak 3 ke Kotak 4.\`;
+      text = `Pola Gambar ${i}: Jika Kotak 1 berubah menjadi Kotak 2 dengan sebuah hukum pencerminan, terapkan hukum yang sama dari Kotak 3 ke Kotak 4.`;
 
       rawOptions = [];
-      const correctTransform = isHoriz ? \`scale(-1, 1) translate(-100, 0) rotate(-90, 50, 50)\` : \`scale(1, -1) translate(0, -100) rotate(90, 50, 50)\`;
+      const correctTransform = isHoriz ? `scale(-1, 1) translate(-100, 0) rotate(-90, 50, 50)` : `scale(1, -1) translate(0, -100) rotate(90, 50, 50)`;
       
-      rawOptions.push(svgOptionWrapper(\`<polygon points="50,30 75,65 40,55" fill="var(--primary)" transform="\${correctTransform}"/>\`));
-      rawOptions.push(svgOptionWrapper(\`<polygon points="50,30 75,65 40,55" fill="var(--primary)" transform="rotate(45, 50, 50)"/>\`));
-      rawOptions.push(svgOptionWrapper(\`<polygon points="50,30 75,65 40,55" fill="var(--primary)" transform="rotate(135, 50, 50)"/>\`));
-      rawOptions.push(svgOptionWrapper(\`<polygon points="50,30 75,65 40,55" fill="var(--primary)" transform="rotate(180, 50, 50)"/>\`));
-      rawOptions.push(svgOptionWrapper(\`<polygon points="50,30 75,65 40,55" fill="var(--primary)" transform="rotate(-45, 50, 50)"/>\`));
+      rawOptions.push(svgOptionWrapper(`<polygon points="50,30 75,65 40,55" fill="var(--primary)" transform="${correctTransform}"/>`));
+      rawOptions.push(svgOptionWrapper(`<polygon points="50,30 75,65 40,55" fill="var(--primary)" transform="rotate(45, 50, 50)"/>`));
+      rawOptions.push(svgOptionWrapper(`<polygon points="50,30 75,65 40,55" fill="var(--primary)" transform="rotate(135, 50, 50)"/>`));
+      rawOptions.push(svgOptionWrapper(`<polygon points="50,30 75,65 40,55" fill="var(--primary)" transform="rotate(180, 50, 50)"/>`));
+      rawOptions.push(svgOptionWrapper(`<polygon points="50,30 75,65 40,55" fill="var(--primary)" transform="rotate(-45, 50, 50)"/>`));
     }
 
     // Mengacak opsi jawaban
@@ -262,7 +262,7 @@ const genPola = () => {
     }
 
     res.push({
-      id: \`4-\${i}\`, text: text, svg: svgStr, options: finalOptions, answer: randomizedCorrectIndex
+      id: `4-${i}`, text: text, svg: svgStr, options: finalOptions, answer: randomizedCorrectIndex
     });
   }
   return res;
@@ -273,20 +273,20 @@ const genRuang = () => {
   let res = [];
   
   const drawIsometricCube = (cx, cy, color, symTop, symLeft, symRight) => {
-    return \`
-      <g transform="translate(\${cx - 100}, \${cy - 100}) scale(0.6)">
-        <polygon points="100,40 50,65 100,90 150,65" fill="\${color}" opacity="0.9" stroke="white" stroke-width="2"/>
-        <text x="92" y="70" fill="white" font-size="20" font-weight="bold">\${symTop}</text>
-        <polygon points="50,65 100,90 100,150 50,125" fill="\${color}" opacity="0.6" stroke="white" stroke-width="2"/>
-        <text x="68" y="115" fill="white" font-size="20" font-weight="bold">\${symLeft}</text>
-        <polygon points="150,65 100,90 100,150 150,125" fill="\${color}" opacity="0.3" stroke="white" stroke-width="2"/>
-        <text x="118" y="115" fill="white" font-size="20" font-weight="bold">\${symRight}</text>
+    return `
+      <g transform="translate(${cx - 100}, ${cy - 100}) scale(0.6)">
+        <polygon points="100,40 50,65 100,90 150,65" fill="${color}" opacity="0.9" stroke="white" stroke-width="2"/>
+        <text x="92" y="70" fill="white" font-size="20" font-weight="bold">${symTop}</text>
+        <polygon points="50,65 100,90 100,150 50,125" fill="${color}" opacity="0.6" stroke="white" stroke-width="2"/>
+        <text x="68" y="115" fill="white" font-size="20" font-weight="bold">${symLeft}</text>
+        <polygon points="150,65 100,90 100,150 150,125" fill="${color}" opacity="0.3" stroke="white" stroke-width="2"/>
+        <text x="118" y="115" fill="white" font-size="20" font-weight="bold">${symRight}</text>
       </g>
-    \`;
+    `;
   };
 
   for (let i = 1; i <= 27; i++) {
-    const color = \`hsl(\${(i * 40 + 100) % 360}, 60%, 45%)\`;
+    const color = `hsl(${(i * 40 + 100) % 360}, 60%, 45%)`;
     let svgStr = '';
     let text = '';
     let rawOptions = [];
@@ -299,14 +299,14 @@ const genRuang = () => {
     // LOGIKA: Rotasi Kubus
     const rotSteps = (i % 3) + 1;
     
-    svgStr = \`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 150" style="background:#020617;border-radius:8px">
-      \${drawIsometricCube(100, 100, color, s1, s2, s3)}
+    svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 150" style="background:#020617;border-radius:8px">
+      ${drawIsometricCube(100, 100, color, s1, s2, s3)}
       <text x="180" y="80" fill="white" font-size="16">Mencari Hasil</text>
       <text x="180" y="100" fill="white" font-size="16">Rotasi 3D ➡</text>
-      \${drawIsometricCube(330, 100, 'rgba(255,255,255,0.1)', '?', '?', '?')}
-    </svg>\`;
+      ${drawIsometricCube(330, 100, 'rgba(255,255,255,0.1)', '?', '?', '?')}
+    </svg>`;
     
-    text = \`Abstraksi Ruang \${i}: Jika kubus di atas diputar \${rotSteps} kali searah jarum jam, manakah gambar kubus yang benar?\`;
+    text = `Abstraksi Ruang ${i}: Jika kubus di atas diputar ${rotSteps} kali searah jarum jam, manakah gambar kubus yang benar?`;
     
     rawOptions = [];
     // Correct Option
@@ -326,11 +326,11 @@ const genRuang = () => {
 
     for (let j = 0; j < 5; j++) {
       const prefix = String.fromCharCode(65 + j);
-      finalOptions.push(tempRaw[j].replace('></span>', \`>\${prefix}.</span>\`));
+      finalOptions.push(tempRaw[j].replace('></span>', `>${prefix}.</span>`));
     }
 
     res.push({
-      id: \`5-\${i}\`, text: text, svg: svgStr, options: finalOptions, answer: randomizedCorrectIndex
+      id: `5-${i}`, text: text, svg: svgStr, options: finalOptions, answer: randomizedCorrectIndex
     });
   }
   return res;
@@ -347,30 +347,30 @@ const genBentuk = () => {
 
     const rot = i * 20;
     
-    svgStr = \`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 150" style="background:#1e293b;border-radius:8px">
+    svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 150" style="background:#1e293b;border-radius:8px">
       <g transform="translate(100, 75)">
         <path d="M-40,-40 L40,-40 L40,40 L-40,40 Z" fill="var(--text-muted)" opacity="0.3"/>
-        <path d="M-40,-40 L40,-40 L40,40 L-40,40 Z" fill="var(--primary)" clip-path="url(#cut\${i})"/>
+        <path d="M-40,-40 L40,-40 L40,40 L-40,40 Z" fill="var(--primary)" clip-path="url(#cut${i})"/>
         
-        <clipPath id="cut\${i}">
+        <clipPath id="cut${i}">
             <polygon points="-50,-50 50,-50 50,50 -50,50" />
-            <polygon points="10,-10 50,20 10,50" transform="rotate(\${rot})" />
+            <polygon points="10,-10 50,20 10,50" transform="rotate(${rot})" />
         </clipPath>
-        <polygon points="10,-10 50,20 10,50" transform="rotate(\${rot})" fill="none" stroke="white" stroke-width="2" stroke-dasharray="4,4"/>
+        <polygon points="10,-10 50,20 10,50" transform="rotate(${rot})" fill="none" stroke="white" stroke-width="2" stroke-dasharray="4,4"/>
       </g>
       <text x="230" y="75" fill="white" font-size="20">Kepingan? ➡</text>
-    </svg>\`;
+    </svg>`;
     
-    text = \`Bentuk \${i}: Shape Completion. Temukan kepingan yang tepat untuk melengkapi bagian kosong dari persegi tersebut!\`;
+    text = `Bentuk ${i}: Shape Completion. Temukan kepingan yang tepat untuk melengkapi bagian kosong dari persegi tersebut!`;
     
-    const drawPiece = (trans) => \`<polygon points="40,30 80,60 40,90" fill="var(--primary)" transform="\${trans}"/>\`;
+    const drawPiece = (trans) => `<polygon points="40,30 80,60 40,90" fill="var(--primary)" transform="${trans}"/>`;
     
     rawOptions = [];
-    rawOptions.push(svgOptionWrapper(drawPiece(\`rotate(\${rot}, 50, 50) translate(-10, -30)\`)));
-    rawOptions.push(svgOptionWrapper(drawPiece(\`rotate(\${rot+45}, 50, 50) translate(-10, -30)\`)));
-    rawOptions.push(svgOptionWrapper(drawPiece(\`rotate(\${rot+90}, 50, 50) translate(-10, -30)\`)));
-    rawOptions.push(svgOptionWrapper(drawPiece(\`rotate(\${rot+180}, 50, 50) translate(-10, -30)\`)));
-    rawOptions.push(svgOptionWrapper(drawPiece(\`rotate(\${rot-45}, 50, 50) translate(-10, -30)\`)));
+    rawOptions.push(svgOptionWrapper(drawPiece(`rotate(${rot}, 50, 50) translate(-10, -30)`)));
+    rawOptions.push(svgOptionWrapper(drawPiece(`rotate(${rot+45}, 50, 50) translate(-10, -30)`)));
+    rawOptions.push(svgOptionWrapper(drawPiece(`rotate(${rot+90}, 50, 50) translate(-10, -30)`)));
+    rawOptions.push(svgOptionWrapper(drawPiece(`rotate(${rot+180}, 50, 50) translate(-10, -30)`)));
+    rawOptions.push(svgOptionWrapper(drawPiece(`rotate(${rot-45}, 50, 50) translate(-10, -30)`)));
 
     let finalOptions = [];
     const randomizedCorrectIndex = (i * 3) % 5; 
@@ -381,11 +381,11 @@ const genBentuk = () => {
 
     for (let j = 0; j < 5; j++) {
       const prefix = String.fromCharCode(65 + j);
-      finalOptions.push(tempRaw[j].replace('></span>', \`>\${prefix}.</span>\`));
+      finalOptions.push(tempRaw[j].replace('></span>', `>${prefix}.</span>`));
     }
 
     res.push({
-      id: \`6-\${i}\`, text: text, svg: svgStr, options: finalOptions, answer: randomizedCorrectIndex
+      id: `6-${i}`, text: text, svg: svgStr, options: finalOptions, answer: randomizedCorrectIndex
     });
   }
   return res;
@@ -456,12 +456,12 @@ const genManajemen = () => {
        const textIndex = targetPoin - 1; 
        const prefix = String.fromCharCode(65 + j);
        const rawText = manajemenOptionsData[i][textIndex];
-       finalOptions.push(\`\${prefix}. \${rawText}\`);
+       finalOptions.push(`${prefix}. ${rawText}`);
     }
 
     res.push({
-      id: \`7-\${i+1}\`,
-      text: \`Studi Kasus Manajemen \${i+1}: \${manajemenData[i]}\`,
+      id: `7-${i+1}`,
+      text: `Studi Kasus Manajemen ${i+1}: ${manajemenData[i]}`,
       options: finalOptions,
       optionScores: currentBobot
     });
@@ -471,9 +471,9 @@ const genManajemen = () => {
 
 const buildQuestions = (dataArray, prefix, subtestId) => {
   return dataArray.map((row, idx) => ({
-    id: \`\${subtestId}-\${idx+1}\`,
-    text: \`Soal \${prefix} \${idx+1}: \${row[0]}\`,
-    options: [\`A. \${row[1]}\`, \`B. \${row[2]}\`, \`C. \${row[3]}\`, \`D. \${row[4]}\`, \`E. \${row[5]}\`],
+    id: `${subtestId}-${idx+1}`,
+    text: `Soal ${prefix} ${idx+1}: ${row[0]}`,
+    options: [`A. ${row[1]}`, `B. ${row[2]}`, `C. ${row[3]}`, `D. ${row[4]}`, `E. ${row[5]}`],
     answer: row[6]
   }));
 };

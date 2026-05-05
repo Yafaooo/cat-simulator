@@ -5,22 +5,23 @@ echo MEMPERBAIKI GITHUB DAN VERCEL SECARA PAKSA...
 echo ========================================================
 echo.
 
-echo 1. Menghapus node_modules dari GitHub...
+echo 1. Menghapus file cache dan lock yang mengganggu Vercel...
+if exist "package-lock.json" del "package-lock.json"
 git rm -r --cached node_modules
 git rm -r --cached dist
 
-echo 2. Menyimpan perubahan...
+echo 2. Menyimpan seluruh perubahan soal terbaru...
 git add .
-git commit -m "FIX TOTAL: Hapus node_modules agar Vercel tidak Permission Denied"
+git commit -m "UPDATE MASSAL: Soal baru, opsi SVG, hapus package-lock"
 
 echo 3. Mengunggah ulang ke GitHub secara paksa...
 git push origin main --force
 
 echo.
 echo ========================================================
-echo BERHASIL! 
-echo Silakan Refresh (F5) halaman Vercel Anda di browser.
-echo Vercel sekarang sedang melakukan Build Ulang dengan benar.
-echo Tunggu sekitar 1 menit dan statusnya akan berubah menjadi hijau (Ready).
+echo BERHASIL DIKIRIM KE VERCEL! 
+echo ========================================================
+echo Vercel sekarang sedang memproses (Build) soal-soal Anda.
+echo TUNGGU 2 MENIT PENUH, lalu buka website Anda dan lakukan Refresh!
 echo ========================================================
 pause
