@@ -4,10 +4,10 @@ import { ref, get, set } from 'firebase/database';
 import { db } from './firebase';
 
 const VALID_ACCESS_CODES = [
-  'PHTC-A1X9', 'PHTC-B2Y8', 'PHTC-C3Z7', 'PHTC-D4W6', 'PHTC-E5V5',
-  'PHTC-F6U4', 'PHTC-G7T3', 'PHTC-H8S2', 'PHTC-I9R1', 'PHTC-J0Q0',
-  'PHTC-K1P9', 'PHTC-L2O8', 'PHTC-M3N7', 'PHTC-N4M6', 'PHTC-O5L5',
-  'PHTC-P6K4', 'PHTC-Q7J3', 'PHTC-R8I2', 'PHTC-S9H1', 'PHTC-T0G0'
+  'PHTC-X9B2', 'PHTC-Y8C3', 'PHTC-Z7D4', 'PHTC-W6E5', 'PHTC-V5F6',
+  'PHTC-U4G7', 'PHTC-T3H8', 'PHTC-S2I9', 'PHTC-R1J0', 'PHTC-Q0K1',
+  'PHTC-P9L2', 'PHTC-O8M3', 'PHTC-N7N4', 'PHTC-M6O5', 'PHTC-L5P6',
+  'PHTC-K4Q7', 'PHTC-J3R8', 'PHTC-I2S9', 'PHTC-H1T0', 'PHTC-G0U1'
 ];
 
 function App() {
