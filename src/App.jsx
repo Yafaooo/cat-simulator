@@ -256,16 +256,60 @@ function App() {
           </div>
           
           <div className="locked-right">
-            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem', border: '1px solid var(--glass-border)' }}>
-              <p style={{ color: 'var(--text-main)', marginBottom: '1rem', fontWeight: 'bold' }}>
+            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem', border: '1px solid var(--glass-border)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <p style={{ color: 'var(--text-main)', marginBottom: '1rem', fontWeight: 'bold', fontSize: '1.2rem', textAlign: 'center' }}>
                 Dapatkan Kode Akses Simulasi
               </p>
-              <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
-                Untuk mendapatkan kode akses, silakan lakukan pembayaran sebesar <strong style={{ color: 'var(--accent)' }}>Rp 10.000</strong> ke nomor DANA: <strong style={{ color: 'var(--primary)', fontSize: '1.1rem' }}>082272463816</strong>. Setelah itu, kirimkan bukti transfernya melalui WhatsApp di bawah ini.
+              <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.95rem', lineHeight: '1.6', textAlign: 'center' }}>
+                Pilih metode pembayaran <strong style={{ color: 'var(--accent)' }}>Rp 10.000</strong> di bawah ini, lalu kirimkan bukti transfer via WhatsApp untuk mendapatkan kode akses seumur hidup.
               </p>
-              <p style={{ fontSize: '0.95rem', color: 'var(--text-main)', marginTop: '0.5rem', fontStyle: 'italic', marginBottom: '1.5rem' }}>
+
+              {/* Payment Methods Container */}
+              <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '1.5rem', width: '100%' }}>
+                
+                {/* DANA Option */}
+                <div style={{ flex: '1', minWidth: '180px', background: 'rgba(0,0,0,0.2)', padding: '1.2rem 1rem', borderRadius: '12px', border: '1px solid rgba(59, 130, 246, 0.3)', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <p style={{ color: 'var(--primary)', fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '1.1rem' }}>Transfer DANA</p>
+                  <div style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'var(--accent)', letterSpacing: '1px', marginBottom: '0.5rem' }}>
+                    082272463816
+                  </div>
+                </div>
+
+                {/* QRIS Option */}
+                <div style={{ flex: '1', minWidth: '180px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{
+                    background: '#fff',
+                    padding: '6px',
+                    borderRadius: '12px',
+                    boxShadow: '0 8px 25px rgba(0,0,0,0.4)',
+                    border: '2px solid var(--primary)',
+                    transition: 'transform 0.3s ease',
+                    cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                  onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  >
+                    <img 
+                      src="/qris.jpeg" 
+                      alt="QRIS Payment" 
+                      style={{
+                        width: '120px',
+                        height: '120px',
+                        objectFit: 'cover',
+                        borderRadius: '8px',
+                        display: 'block'
+                      }}
+                    />
+                  </div>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '0.8rem', fontWeight: 'bold', letterSpacing: '0.5px' }}>SCAN QRIS ALL PAYMENT</p>
+                </div>
+
+              </div>
+
+              <p style={{ fontSize: '0.95rem', color: 'var(--text-main)', marginTop: '0.5rem', fontStyle: 'italic', marginBottom: '1.5rem', textAlign: 'center', background: 'rgba(59, 130, 246, 0.1)', padding: '12px', borderRadius: '8px', borderLeft: '4px solid var(--primary)' }}>
                 "Cukup bayar sekali (lebih murah dari seblak!), kode akses ini bisa dipakai seumur hidup sampai jari Anda keriting! Tenang saja, soal-soalnya di-update otomatis tiap 3 jam sekali biar otak Anda tidak sempat bernapas. 🤯🔥"
               </p>
+
               <a 
                 href="https://wa.me/6282272463816?text=Halo%20Admin,%20saya%20ingin%20mengirimkan%20bukti%20pembayaran%20untuk%20mendapatkan%20kode%20akses%20Simulasi%20CAT." 
                 target="_blank" 
