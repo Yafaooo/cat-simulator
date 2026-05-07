@@ -257,25 +257,32 @@ function App() {
           </div>
 
           <div className="locked-right">
-            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem', border: '1px solid var(--glass-border)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <p style={{ color: 'var(--text-main)', marginBottom: '1rem', fontWeight: 'bold', fontSize: '1.2rem', textAlign: 'center' }}>
-                Dapatkan Kode Akses Simulasi
-              </p>
+            {/* Card 1: Dapatkan Kode (Pembayaran) */}
+            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '2rem', borderRadius: '16px', marginBottom: '1.5rem', border: '1px solid var(--glass-border)', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
+                <div style={{ background: 'var(--primary)', padding: '8px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 18V6"></path></svg>
+                </div>
+                <p style={{ color: 'var(--text-main)', margin: 0, fontWeight: 'bold', fontSize: '1.3rem' }}>
+                  Dapatkan Kode Akses
+                </p>
+              </div>
+
               <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.95rem', lineHeight: '1.6', textAlign: 'center' }}>
-                Pilih metode pembayaran <strong style={{ color: 'var(--accent)' }}>Rp 10.000</strong> di bawah ini, lalu kirimkan bukti transfer via WhatsApp untuk mendapatkan kode akses seumur hidup.
+                Pilih metode pembayaran <strong style={{ color: 'var(--accent)' }}>Rp 10.000</strong> di bawah ini untuk kode akses seumur hidup.
               </p>
 
               {/* Payment Methods Container */}
               <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '1.5rem', width: '100%' }}>
-
+                
                 {/* DANA Option */}
-                <div
+                <div 
                   onClick={() => setSelectedPayment('dana')}
-                  style={{
-                    flex: '1', minWidth: '180px',
-                    background: selectedPayment === 'dana' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(0,0,0,0.2)',
-                    padding: '1.5rem 1rem', borderRadius: '16px',
-                    border: selectedPayment === 'dana' ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.1)',
+                  style={{ 
+                    flex: '1', minWidth: '180px', 
+                    background: selectedPayment === 'dana' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(0,0,0,0.2)', 
+                    padding: '1.5rem 1rem', borderRadius: '16px', 
+                    border: selectedPayment === 'dana' ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.1)', 
                     textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center',
                     cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                     transform: selectedPayment === 'dana' ? 'scale(1.05)' : 'scale(1)',
@@ -283,13 +290,13 @@ function App() {
                   }}
                 >
                   <p style={{ color: selectedPayment === 'dana' ? 'var(--primary)' : 'var(--text-main)', fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '1.1rem', transition: 'color 0.3s ease' }}>Transfer DANA</p>
-
+                  
                   {selectedPayment === 'dana' ? (
                     <div className="animate-fade-in" style={{ marginTop: '0.5rem' }}>
                       <div style={{ fontSize: '1.6rem', fontWeight: 'bold', color: 'var(--accent)', letterSpacing: '2px', marginBottom: '0.5rem', textShadow: '0 2px 10px rgba(245, 158, 11, 0.4)' }}>
                         082272463816
                       </div>
-                      <p style={{ fontSize: '0.85rem', color: '#fff', background: 'var(--primary)', display: 'inline-block', padding: '4px 16px', borderRadius: '20px', fontWeight: '600' }}>a.n Yxxxxmxxx Lxxxxx </p>
+                      <p style={{ fontSize: '0.85rem', color: '#fff', background: 'var(--primary)', display: 'inline-block', padding: '4px 16px', borderRadius: '20px', fontWeight: '600' }}>a.n Yxxxxmxxx Lxxxxx</p>
                     </div>
                   ) : (
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Klik untuk melihat nomor</p>
@@ -297,12 +304,12 @@ function App() {
                 </div>
 
                 {/* QRIS Option */}
-                <div
+                <div 
                   onClick={() => setSelectedPayment('qris')}
-                  style={{
-                    flex: '1', minWidth: '180px',
+                  style={{ 
+                    flex: '1', minWidth: '180px', 
                     background: selectedPayment === 'qris' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(0,0,0,0.2)',
-                    padding: '1.5rem 1rem', borderRadius: '16px',
+                    padding: '1.5rem 1rem', borderRadius: '16px', 
                     border: selectedPayment === 'qris' ? '2px solid var(--success)' : '1px solid rgba(255,255,255,0.1)',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                     cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
@@ -320,12 +327,11 @@ function App() {
                     </svg>
                     <p style={{ color: selectedPayment === 'qris' ? 'var(--success)' : 'var(--text-main)', fontWeight: 'bold', fontSize: '1.1rem', margin: 0, transition: 'color 0.3s ease' }}>Scan QRIS</p>
                   </div>
-
+                  
                   {selectedPayment !== 'qris' && (
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Klik untuk membesarkan QR</p>
                   )}
                 </div>
-
               </div>
 
               {/* QRIS POPUP / ENLARGED VIEW */}
@@ -338,9 +344,9 @@ function App() {
                     boxShadow: '0 15px 40px rgba(16, 185, 129, 0.3)',
                     border: '4px solid var(--success)',
                   }}>
-                    <img
-                      src="/qris.jpeg"
-                      alt="QRIS Payment"
+                    <img 
+                      src="/qris.jpeg" 
+                      alt="QRIS Payment" 
                       style={{
                         width: '240px',
                         height: 'auto',
@@ -353,67 +359,79 @@ function App() {
                 </div>
               )}
 
-              <p style={{ fontSize: '0.95rem', color: 'var(--text-main)', marginTop: '0.5rem', fontStyle: 'italic', marginBottom: '1.5rem', textAlign: 'center', background: 'rgba(59, 130, 246, 0.1)', padding: '12px', borderRadius: '8px', borderLeft: '4px solid var(--primary)' }}>
-                "Cukup bayar sekali (lebih murah dari seblak!), kode akses ini bisa dipakai seumur hidup sampai jari Anda keriting! Tenang saja, soal-soalnya di-update otomatis tiap 3 jam sekali biar otak Anda tidak sempat bernapas. 🤯🔥"
-              </p>
+              <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '12px 16px', borderRadius: '12px', borderLeft: '4px solid var(--primary)', marginBottom: '1.5rem', width: '100%' }}>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-main)', margin: 0, fontStyle: 'italic', textAlign: 'left', lineHeight: '1.5' }}>
+                  💡 <strong>Info:</strong> Cukup bayar sekali (lebih murah dari seblak!), kode bisa dipakai seumur hidup! Soal di-update otomatis tiap 3 jam.
+                </p>
+              </div>
 
               <a
                 href="https://wa.me/6282272463816?text=Halo%20Admin,%20saya%20ingin%20mengirimkan%20bukti%20pembayaran%20untuk%20mendapatkan%20kode%20akses%20Simulasi%20CAT."
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', fontSize: '1rem', background: '#25D366', color: '#fff', textDecoration: 'none', borderRadius: '8px', fontWeight: 'bold', transition: 'transform 0.2s', boxShadow: '0 4px 15px rgba(37, 211, 102, 0.3)', width: 'fit-content' }}
-                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '14px 24px', fontSize: '1.05rem', background: '#25D366', color: '#fff', textDecoration: 'none', borderRadius: '12px', fontWeight: 'bold', transition: 'transform 0.2s', boxShadow: '0 4px 15px rgba(37, 211, 102, 0.3)', width: '100%' }}
+                onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                 </svg>
-                Kirim Bukti Pembayaran
+                Konfirmasi via WhatsApp
               </a>
             </div>
 
-            <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem', textAlign: 'left' }}>
-              Sudah punya kode akses? Masukkan di bawah ini:
-            </p>
-            <div style={{ marginBottom: '2rem' }}>
-              <input
-                type="password"
-                placeholder="Masukkan Kode Akses..."
-                value={accessCode}
-                onChange={(e) => {
-                  setAccessCode(e.target.value);
-                  setAccessError('');
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    verifyAccessCode(accessCode.trim());
-                  }
-                }}
-                style={{
-                  width: '100%',
-                  padding: '16px',
-                  borderRadius: '8px',
-                  border: `1px solid ${accessError && accessError !== 'Memeriksa kode...' ? 'var(--danger)' : 'var(--primary)'}`,
-                  background: 'rgba(255,255,255,0.1)',
-                  color: 'var(--text-main)',
-                  fontSize: '1.2rem',
-                  textAlign: 'center',
-                  outline: 'none'
-                }}
-              />
-              {accessError && accessError !== 'Memeriksa kode...' && <div style={{ color: 'var(--danger)', marginTop: '0.5rem', fontSize: '0.9rem', textAlign: 'left' }}>{accessError}</div>}
-              {accessError === 'Memeriksa kode...' && <div style={{ color: 'var(--primary)', marginTop: '0.5rem', fontSize: '0.9rem', textAlign: 'left' }}>Sedang memverifikasi ke database...</div>}
+            {/* Card 2: Login (Sudah Punya Kode) */}
+            <div style={{ background: 'rgba(255,255,255,0.02)', padding: '2rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
+                <div style={{ background: 'rgba(255,255,255,0.1)', padding: '8px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <p style={{ color: 'var(--text-main)', margin: 0, fontWeight: 'bold', fontSize: '1.1rem' }}>
+                  Sudah punya kode akses?
+                </p>
+              </div>
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <input
+                  type="password"
+                  placeholder="Masukkan Kode Akses..."
+                  value={accessCode}
+                  onChange={(e) => {
+                    setAccessCode(e.target.value);
+                    setAccessError('');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      verifyAccessCode(accessCode.trim());
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    borderRadius: '12px',
+                    border: `1px solid ${accessError && accessError !== 'Memeriksa kode...' ? 'var(--danger)' : 'rgba(255,255,255,0.1)'}`,
+                    background: 'rgba(0,0,0,0.2)',
+                    color: 'var(--text-main)',
+                    fontSize: '1.2rem',
+                    textAlign: 'center',
+                    outline: 'none',
+                    transition: 'border 0.3s ease'
+                  }}
+                  onFocus={(e) => e.target.style.border = '1px solid var(--primary)'}
+                  onBlur={(e) => e.target.style.border = `1px solid ${accessError && accessError !== 'Memeriksa kode...' ? 'var(--danger)' : 'rgba(255,255,255,0.1)'}`}
+                />
+                {accessError && accessError !== 'Memeriksa kode...' && <div style={{ color: 'var(--danger)', marginTop: '0.8rem', fontSize: '0.9rem', textAlign: 'center' }}>{accessError}</div>}
+                {accessError === 'Memeriksa kode...' && <div style={{ color: 'var(--primary)', marginTop: '0.8rem', fontSize: '0.9rem', textAlign: 'center' }}>Sedang memverifikasi ke database...</div>}
+              </div>
+              <button
+                className="btn"
+                style={{ padding: '14px 24px', fontSize: '1.1rem', width: '100%', borderRadius: '12px', opacity: accessError === 'Memeriksa kode...' ? 0.7 : 1 }}
+                disabled={accessError === 'Memeriksa kode...'}
+                onClick={() => verifyAccessCode(accessCode.trim())}
+              >
+                {accessError === 'Memeriksa kode...' ? 'MEMERIKSA...' : 'BUKA AKSES SIMULASI'}
+              </button>
             </div>
-            <button
-              className="btn"
-              style={{ padding: '16px 48px', fontSize: '1.2rem', width: '100%', opacity: accessError === 'Memeriksa kode...' ? 0.7 : 1 }}
-              disabled={accessError === 'Memeriksa kode...'}
-              onClick={() => {
-                verifyAccessCode(accessCode.trim());
-              }}
-            >
-              {accessError === 'Memeriksa kode...' ? 'MEMERIKSA...' : 'BUKA AKSES'}
-            </button>
           </div>
         </div>
       )}
