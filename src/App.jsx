@@ -28,8 +28,9 @@ const VALID_ACCESS_CODES = [
 ];
 
 function App() {
-  const [appState, setAppState] = useState('locked'); // locked, intro, test, result
-  const [selectedPayment, setSelectedPayment] = useState(null); // 'dana' | 'qris'
+  const [appState, setAppState] = useState('locked'); // locked, intro, test, transition, result
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [selectedPackage, setSelectedPackage] = useState('premium'); // 'premium' | 'vvip'
   const [accessCode, setAccessCode] = useState('');
   const [accessError, setAccessError] = useState('');
   const [deviceId] = useState(() => {
@@ -42,14 +43,21 @@ function App() {
   });
   const [candidateName, setCandidateName] = useState('');
   const [currentSubtestIndex, setCurrentSubtestIndex] = useState(0);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
   const [answers, setAnswers] = useState({}); // { "1-1": 2, "1-2": 1, ... }
+  const [timeStats, setTimeStats] = useState({}); // { 0: 300, 1: 400 ... } -> time spent in seconds per subtest
 
+  const QUESTIONS_PER_BLOCK = 5;
   const currentSubtest = SUBTESTS[currentSubtestIndex];
-  const currentQuestion = currentSubtest?.questions[currentQuestionIndex];
+  
+  const currentQuestions = currentSubtest ? currentSubtest.questions.slice(
+    currentBlockIndex * QUESTIONS_PER_BLOCK,
+    (currentBlockIndex + 1) * QUESTIONS_PER_BLOCK
+  ) : [];
 
-  // Check local storage for existing session
+  const totalBlocks = currentSubtest ? Math.ceil(currentSubtest.questions.length / QUESTIONS_PER_BLOCK) : 0;
+
   useEffect(() => {
     const savedCode = localStorage.getItem('phtc_access_code');
     if (savedCode && VALID_ACCESS_CODES.includes(savedCode)) {
@@ -57,37 +65,39 @@ function App() {
     }
   }, []);
 
-  const verifyAccessCode = async (code) => {
+  const verifyAccessCode = async (code, packageType = 'premium') => {
     if (!VALID_ACCESS_CODES.includes(code)) {
       setAccessError('Kode akses salah!');
       return;
     }
-
     setAccessError('Memeriksa kode...');
-
     try {
       const codeRef = ref(db, `codes/${code}`);
       const snapshot = await get(codeRef);
-
       if (snapshot.exists()) {
         const data = snapshot.val();
         if (data.deviceId === deviceId) {
-          // Code belongs to this device, allow access
           localStorage.setItem('phtc_access_code', code);
-          setAppState('intro');
+          if (packageType === 'vvip') {
+             window.location.href = 'https://catreal.vercel.app/';
+          } else {
+             setAppState('intro');
+          }
         } else {
-          // Code belongs to another device
           setAccessError('Kode sudah digunakan di perangkat lain!');
         }
       } else {
-        // Code is brand new, claim it for this device
         await set(codeRef, {
           used: true,
           deviceId: deviceId,
           claimedAt: new Date().toISOString()
         });
         localStorage.setItem('phtc_access_code', code);
-        setAppState('intro');
+        if (packageType === 'vvip') {
+           window.location.href = 'https://catreal.vercel.app/';
+        } else {
+           setAppState('intro');
+        }
       }
     } catch (error) {
       console.error(error);
@@ -95,18 +105,15 @@ function App() {
     }
   };
 
-  // Start the test
   const startTest = () => {
     setAppState('test');
     setCurrentSubtestIndex(0);
-    setCurrentQuestionIndex(0);
+    setCurrentBlockIndex(0);
     setTimeLeft(SUBTESTS[0].timeLimit);
     setAnswers({});
+    setTimeStats({});
   };
 
-  const timeoutRef = React.useRef(null);
-
-  // Timer Logic
   useEffect(() => {
     let timer;
     if (appState === 'test' && timeLeft > 0) {
@@ -114,70 +121,85 @@ function App() {
         setTimeLeft(prev => prev - 1);
       }, 1000);
     } else if (appState === 'test' && timeLeft === 0) {
-      handleNextSubtest();
+      handleSubtestComplete();
     }
     return () => clearInterval(timer);
   }, [appState, timeLeft]);
 
-  // Handle Next Subtest / Finish
-  const handleNextSubtest = () => {
-    setCurrentSubtestIndex(prev => {
-      if (prev < SUBTESTS.length - 1) {
-        const nextIdx = prev + 1;
-        setTimeLeft(SUBTESTS[nextIdx].timeLimit);
-        setCurrentQuestionIndex(0);
-        return nextIdx;
-      } else {
-        setAppState('result');
-        return prev;
-      }
-    });
-  };
-
-  // Handle Question Navigation
-  const handleNextQuestion = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
-    if (currentQuestionIndex < currentSubtest.questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-    } else {
-      handleNextSubtest();
-    }
-  };
-
-  const handlePrevQuestion = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
-    }
-  };
-
-  // Handle Answer Selection
-  const handleSelectAnswer = (optionIndex) => {
-    setAnswers(prev => ({
+  const handleSubtestComplete = () => {
+    // Record time spent
+    const timeSpent = currentSubtest.timeLimit - timeLeft;
+    setTimeStats(prev => ({
       ...prev,
-      [currentQuestion.id]: optionIndex
+      [currentSubtestIndex]: timeSpent
     }));
 
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
-    timeoutRef.current = setTimeout(() => {
-      handleNextQuestion();
-    }, 400);
+    if (currentSubtestIndex < SUBTESTS.length - 1) {
+      setAppState('transition');
+    } else {
+      setAppState('result');
+    }
   };
 
-  // Format Time
+  const nextSubtestFromTransition = () => {
+    const nextIdx = currentSubtestIndex + 1;
+    setCurrentSubtestIndex(nextIdx);
+    setCurrentBlockIndex(0);
+    setTimeLeft(SUBTESTS[nextIdx].timeLimit);
+    setAppState('test');
+  };
+
+  const handleNextBlock = () => {
+    if (currentBlockIndex < totalBlocks - 1) {
+      setCurrentBlockIndex(prev => prev + 1);
+      window.scrollTo(0, 0);
+    } else {
+      handleSubtestComplete();
+    }
+  };
+
+  const handlePrevBlock = () => {
+    if (currentBlockIndex > 0) {
+      setCurrentBlockIndex(prev => prev - 1);
+      window.scrollTo(0, 0);
+    }
+  };
+
+  const handleSelectAnswer = (questionId, optionIndex) => {
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: optionIndex
+    }));
+  };
+
   const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')} menit ${s.toString().padStart(2, '0')} detik`;
+  };
+  
+  const formatTimeDigital = (seconds) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  // Calculate Results
+  const getDifficultyBadge = (globalIndex, totalQs) => {
+    // Progressive Difficulty logic based on index within subtest
+    if (globalIndex < totalQs / 3) {
+      return { text: "Mudah - Target: 5s", color: "var(--success)" };
+    } else if (globalIndex < (totalQs / 3) * 2) {
+      return { text: "Menengah - Target: 10s", color: "var(--warning)" };
+    } else {
+      return { text: "Sulit - Target: 15s", color: "var(--danger)" };
+    }
+  };
+
   const calculateResults = () => {
     let tpkScore = 0; // Sub 1-6
     let manajerialScore = 0; // Sub 7
     let subtestDetails = [];
+    let wrongAnswersData = [];
 
     SUBTESTS.forEach((subtest, index) => {
       let correct = 0;
@@ -189,25 +211,54 @@ function App() {
         const userAnswer = answers[q.id];
         if (userAnswer === undefined) {
           unanswered++;
+          if (index < 6) { // TPK only for wrong details
+             wrongAnswersData.push({
+               question: q,
+               userAnswerText: "Tidak Terjawab",
+               correctAnswerText: q.options[q.answer],
+               subtestTitle: subtest.title
+             });
+          }
         } else {
           if (index < 6) {
-            // Subtes 1-6 (TPK) bernilai 1 poin jika benar
             if (userAnswer === q.answer) {
               correct++;
               tpkScore += 1;
               subtestScore += 1;
             } else {
               wrong++;
+              wrongAnswersData.push({
+                question: q,
+                userAnswerText: q.options[userAnswer],
+                correctAnswerText: q.options[q.answer],
+                subtestTitle: subtest.title
+              });
             }
           } else {
-            // Subtes 7 (Manajemen Bidang) bernilai 1-5 poin
             const points = q.optionScores[userAnswer];
             manajerialScore += points;
             subtestScore += points;
-            correct++; // Tidak ada "salah" di manajemen, hanya perbedaan bobot
+            correct++;
           }
         }
       });
+
+      const timeSpent = timeStats[index] || subtest.timeLimit;
+      const avgTimePerQ = timeSpent / subtest.questions.length;
+      let speedAnalysis = "";
+      
+      // Target is 8.4 seconds for 50q/7m, etc.
+      const targetAvg = subtest.timeLimit / subtest.questions.length;
+      
+      if (avgTimePerQ <= targetAvg) {
+        speedAnalysis = `Cepat (${avgTimePerQ.toFixed(1)}s/soal)`;
+      } else {
+        speedAnalysis = `Lambat (${avgTimePerQ.toFixed(1)}s/soal) - Target: ${targetAvg.toFixed(1)}s`;
+      }
+
+      if(index === 6) {
+          speedAnalysis = `Normal (${avgTimePerQ.toFixed(1)}s/soal)`; // Subtest 7 has plenty of time (20 min for 20 Q)
+      }
 
       subtestDetails.push({
         title: subtest.title,
@@ -215,20 +266,19 @@ function App() {
         wrong: index < 6 ? wrong : '-',
         unanswered,
         total: subtest.questions.length,
-        score: subtestScore
+        score: subtestScore,
+        speedAnalysis
       });
     });
 
-    return { tpkScore, manajerialScore, subtestDetails };
+    return { tpkScore, manajerialScore, subtestDetails, wrongAnswersData };
   };
 
   return (
     <div className="app-container">
       {appState === 'locked' && (
         <div className="glass-panel animate-fade-in locked-screen-layout">
-
           <div className="locked-left">
-            {/* Logo Kopdes Merah Putih */}
             <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
               <img
                 src="/kopdes.jpg"
@@ -246,21 +296,16 @@ function App() {
                 onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
               />
             </div>
-
             <h1 style={{ color: 'var(--primary)', marginBottom: '1rem', fontSize: '2.2rem', textShadow: '0 2px 10px rgba(59, 130, 246, 0.3)' }}>
               AKSES TERKUNCI
             </h1>
-
             <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '1rem', maxWidth: '350px', lineHeight: '1.6' }}>
               Platform Simulasi CAT Premium. Menguji kemampuan kognitif, spasial visual, dan manajerial Anda secara presisi layaknya ujian seleksi sungguhan.
             </p>
-
-            {/* Card 2: Login (Sudah Punya Kode) */}
             <div style={{ marginTop: '1rem', width: '100%', maxWidth: '350px' }}>
               <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem', textAlign: 'left' }}>
                 Sudah punya kode akses? Masukkan di bawah ini:
               </p>
-
               <div style={{ marginBottom: '1rem' }}>
                 <input
                   type="password"
@@ -272,7 +317,7 @@ function App() {
                   }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                      verifyAccessCode(accessCode.trim());
+                      verifyAccessCode(accessCode.trim(), 'premium');
                     }
                   }}
                   style={{
@@ -293,31 +338,66 @@ function App() {
                 {accessError && accessError !== 'Memeriksa kode...' && <div style={{ color: 'var(--danger)', marginTop: '0.8rem', fontSize: '0.9rem', textAlign: 'center' }}>{accessError}</div>}
                 {accessError === 'Memeriksa kode...' && <div style={{ color: 'var(--primary)', marginTop: '0.8rem', fontSize: '0.9rem', textAlign: 'left' }}>Sedang memverifikasi ke database...</div>}
               </div>
-              <button
-                className="btn"
-                style={{ padding: '16px 48px', fontSize: '1.2rem', width: '100%', opacity: accessError === 'Memeriksa kode...' ? 0.7 : 1 }}
-                disabled={accessError === 'Memeriksa kode...'}
-                onClick={() => verifyAccessCode(accessCode.trim())}
-              >
-                {accessError === 'Memeriksa kode...' ? 'MEMERIKSA...' : 'BUKA AKSES'}
-              </button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  className="btn"
+                  style={{ padding: '12px', fontSize: '1.05rem', flex: 1, opacity: accessError === 'Memeriksa kode...' ? 0.7 : 1 }}
+                  disabled={accessError === 'Memeriksa kode...'}
+                  onClick={() => verifyAccessCode(accessCode.trim(), 'premium')}
+                >
+                  {accessError === 'Memeriksa kode...' ? 'MEMERIKSA...' : 'BUKA PREMIUM'}
+                </button>
+                <button
+                  className="btn"
+                  style={{ padding: '12px', fontSize: '1.05rem', flex: 1, background: 'var(--warning)', color: '#000', opacity: accessError === 'Memeriksa kode...' ? 0.7 : 1 }}
+                  disabled={accessError === 'Memeriksa kode...'}
+                  onClick={() => verifyAccessCode(accessCode.trim(), 'vvip')}
+                >
+                  {accessError === 'Memeriksa kode...' ? 'MEMERIKSA...' : 'BUKA VVIP'}
+                </button>
+              </div>
             </div>
           </div>
-
           <div className="locked-right">
-            {/* Card 1: Dapatkan Kode (Pembayaran) */}
             <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem', border: '1px solid var(--glass-border)' }}>
-              <p style={{ color: 'var(--text-main)', marginBottom: '1rem', fontWeight: 'bold' }}>
-                Dapatkan Kode Akses Simulasi
-              </p>
-              <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
-                Untuk mendapatkan kode akses, silakan lakukan pembayaran sebesar <strong style={{ color: 'var(--accent)' }}>Rp 10.000</strong> ke nomor DANA: <strong style={{ color: 'var(--primary)', fontSize: '1.1rem' }}>082272463816</strong> atau Scan QRIS. Setelah itu, kirimkan bukti transfernya melalui WhatsApp di bawah ini.
-              </p>
+              
+              {/* Tabs for Package Selection */}
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '1.5rem', background: 'rgba(0,0,0,0.2)', padding: '6px', borderRadius: '12px' }}>
+                <button 
+                  onClick={() => setSelectedPackage('premium')}
+                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: selectedPackage === 'premium' ? 'var(--primary)' : 'transparent', color: selectedPackage === 'premium' ? '#fff' : 'var(--text-muted)', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s ease' }}
+                >
+                  Premium (Rp 10k)
+                </button>
+                <button 
+                  onClick={() => setSelectedPackage('vvip')}
+                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: selectedPackage === 'vvip' ? 'var(--warning)' : 'transparent', color: selectedPackage === 'vvip' ? '#000' : 'var(--text-muted)', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s ease' }}
+                >
+                  VVIP (Rp 35k)
+                </button>
+              </div>
 
-              {/* Payment Methods Container */}
+              {selectedPackage === 'premium' ? (
+                <>
+                  <p style={{ color: 'var(--text-main)', marginBottom: '1rem', fontWeight: 'bold' }}>
+                    Dapatkan Kode Akses Simulasi Premium
+                  </p>
+                  <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                    Untuk mendapatkan kode akses, silakan lakukan pembayaran sebesar <strong style={{ color: 'var(--accent)' }}>Rp 10.000</strong> ke nomor DANA: <strong style={{ color: 'var(--primary)', fontSize: '1.1rem' }}>082272463816</strong> atau Scan QRIS. Setelah itu, kirimkan bukti transfernya melalui WhatsApp di bawah ini.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p style={{ color: 'var(--warning)', marginBottom: '1rem', fontWeight: 'bold' }}>
+                    Dapatkan Kode Akses Simulasi VVIP
+                  </p>
+                  <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                    Investasi <strong style={{ color: 'var(--warning)' }}>Rp 35.000</strong> (seharga nongkrong di kafe) untuk masa depan yang cerah! 90% soal mirip aslinya, super lengkap dengan kunci jawaban dan pembahasan biar kamu nggak overthinking tengah malam. Dijamin otak auto-encer dan siap tempur! 🚀😎
+                  </p>
+                </>
+              )}
+              
               <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '1.5rem', width: '100%' }}>
-                
-                {/* DANA Option */}
                 <div 
                   onClick={() => setSelectedPayment('dana')}
                   style={{ 
@@ -332,7 +412,6 @@ function App() {
                   }}
                 >
                   <p style={{ color: selectedPayment === 'dana' ? 'var(--primary)' : 'var(--text-main)', fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '1.1rem', transition: 'color 0.3s ease' }}>Transfer DANA</p>
-                  
                   {selectedPayment === 'dana' ? (
                     <div className="animate-fade-in" style={{ marginTop: '0.5rem' }}>
                       <div style={{ fontSize: '1.6rem', fontWeight: 'bold', color: 'var(--accent)', letterSpacing: '2px', marginBottom: '0.5rem', textShadow: '0 2px 10px rgba(245, 158, 11, 0.4)' }}>
@@ -344,8 +423,6 @@ function App() {
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Klik untuk melihat nomor</p>
                   )}
                 </div>
-
-                {/* QRIS Option */}
                 <div 
                   onClick={() => setSelectedPayment('qris')}
                   style={{ 
@@ -360,62 +437,22 @@ function App() {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={selectedPayment === 'qris' ? 'var(--success)' : 'var(--text-main)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'stroke 0.3s ease' }}>
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                      <rect x="7" y="7" width="3" height="3"></rect>
-                      <rect x="14" y="7" width="3" height="3"></rect>
-                      <rect x="7" y="14" width="3" height="3"></rect>
-                      <rect x="14" y="14" width="3" height="3"></rect>
-                    </svg>
                     <p style={{ color: selectedPayment === 'qris' ? 'var(--success)' : 'var(--text-main)', fontWeight: 'bold', fontSize: '1.1rem', margin: 0, transition: 'color 0.3s ease' }}>Scan QRIS</p>
                   </div>
-                  
                   {selectedPayment !== 'qris' && (
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Klik untuk membesarkan QR</p>
                   )}
                 </div>
               </div>
-
-              {/* QRIS POPUP / ENLARGED VIEW */}
               {selectedPayment === 'qris' && (
                 <div className="animate-fade-in" style={{ marginBottom: '1.5rem', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <div style={{
-                    background: '#fff',
-                    padding: '16px',
-                    borderRadius: '20px',
-                    boxShadow: '0 15px 40px rgba(16, 185, 129, 0.3)',
-                    border: '4px solid var(--success)',
-                  }}>
-                    <img 
-                      src="/qris.jpeg" 
-                      alt="QRIS Payment" 
-                      style={{
-                        width: '240px',
-                        height: 'auto',
-                        borderRadius: '12px',
-                        display: 'block'
-                      }}
-                    />
+                  <div style={{ background: '#fff', padding: '16px', borderRadius: '20px', border: '4px solid var(--success)' }}>
+                    <img src="/qris.jpeg" alt="QRIS Payment" style={{ width: '240px', height: 'auto', borderRadius: '12px', display: 'block' }} />
                   </div>
-                  <p style={{ color: '#fff', fontSize: '0.95rem', marginTop: '1.2rem', fontWeight: 'bold', letterSpacing: '1.5px', background: 'var(--success)', padding: '8px 20px', borderRadius: '24px', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)' }}>SCAN UNTUK MEMBAYAR</p>
+                  <p style={{ color: '#fff', fontSize: '0.95rem', marginTop: '1.2rem', fontWeight: 'bold', letterSpacing: '1.5px', background: 'var(--success)', padding: '8px 20px', borderRadius: '24px' }}>SCAN UNTUK MEMBAYAR</p>
                 </div>
               )}
-
-              <p style={{ fontSize: '0.95rem', color: 'var(--text-main)', marginTop: '0.5rem', fontStyle: 'italic', marginBottom: '1.5rem' }}>
-                "Cukup bayar sekali (lebih murah dari seblak!), kode akses ini bisa dipakai seumur hidup sampai jari Anda keriting! Tenang saja, soal-soalnya di-update otomatis tiap 3 jam sekali biar otak Anda tidak sempat bernapas. 🤯🔥"
-              </p>
-
-              <a
-                href="https://wa.me/6282272463816?text=Halo%20Admin,%20saya%20ingin%20mengirimkan%20bukti%20pembayaran%20untuk%20mendapatkan%20kode%20akses%20Simulasi%20CAT."
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', fontSize: '1rem', background: '#25D366', color: '#fff', textDecoration: 'none', borderRadius: '8px', fontWeight: 'bold', transition: 'transform 0.2s', boxShadow: '0 4px 15px rgba(37, 211, 102, 0.3)', width: 'fit-content' }}
-                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                </svg>
+              <a href={`https://wa.me/6282272463816?text=Halo%20Admin,%20saya%20ingin%20mengirimkan%20bukti%20pembayaran%20untuk%20mendapatkan%20kode%20akses%20Simulasi%20CAT%20${selectedPackage.toUpperCase()}.`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', fontSize: '1rem', background: '#25D366', color: '#fff', textDecoration: 'none', borderRadius: '8px', fontWeight: 'bold' }}>
                 Kirim Bukti Pembayaran
               </a>
             </div>
@@ -429,27 +466,15 @@ function App() {
             SIMULASI CAT SELEKSI MANAJER
           </h1>
           <h2 style={{ color: 'var(--accent)', marginBottom: '2rem' }}>KDKMP PHTC 2026</h2>
-
           <div style={{ marginBottom: '2rem' }}>
             <input
               type="text"
               placeholder="Masukkan Nama Anda untuk Memulai..."
               value={candidateName}
               onChange={(e) => setCandidateName(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '16px',
-                borderRadius: '8px',
-                border: '1px solid var(--primary)',
-                background: 'rgba(255,255,255,0.1)',
-                color: 'var(--text-main)',
-                fontSize: '1.2rem',
-                textAlign: 'center',
-                outline: 'none'
-              }}
+              style={{ width: '100%', padding: '16px', borderRadius: '8px', border: '1px solid var(--primary)', background: 'rgba(255,255,255,0.1)', color: 'var(--text-main)', fontSize: '1.2rem', textAlign: 'center', outline: 'none' }}
             />
           </div>
-
           <div style={{ background: 'rgba(255,255,255,0.05)', padding: '2rem', borderRadius: '12px', marginBottom: '2rem', textAlign: 'left' }}>
             <p><strong>Nama Kandidat :</strong> {candidateName || "Belum Diisi"}</p>
             <p><strong>Posisi :</strong> Manajer KDKMP PHTC 2026</p>
@@ -462,124 +487,117 @@ function App() {
             <p style={{ marginTop: '1rem', color: 'var(--danger)', fontSize: '0.9rem' }}>
               * Peringatan: Waktu akan berjalan otomatis. Jika waktu habis, sistem akan melanjutkan ke subtes berikutnya.
             </p>
+            <p style={{ marginTop: '0.5rem', color: 'var(--warning)', fontSize: '0.9rem' }}>
+              * Fitur Baru: Soal akan ditampilkan per blok (5 soal). Anda dapat menavigasi blok dengan tombol "Selanjutnya".
+            </p>
           </div>
-
-          <button
-            className="btn btn-success"
-            style={{ padding: '16px 48px', fontSize: '1.2rem', opacity: candidateName.trim() === '' ? 0.5 : 1 }}
-            onClick={startTest}
-            disabled={candidateName.trim() === ''}
-          >
+          <button className="btn btn-success" style={{ padding: '16px 48px', fontSize: '1.2rem', opacity: candidateName.trim() === '' ? 0.5 : 1 }} onClick={startTest} disabled={candidateName.trim() === ''}>
             MULAI SIMULASI
           </button>
+        </div>
+      )}
 
-          {/* Visitor Counter */}
-          <div style={{ marginTop: '3rem', opacity: 0.8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0 }}>Statistik Akses Portal PHTC:</p>
-            <img
-              src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FYafaooo%2Fcat-simulator&label=TOTAL%20PESERTA&countColor=%233b82f6"
-              alt="Visitor Count"
-              style={{ borderRadius: '4px', boxShadow: '0 2px 10px rgba(0,0,0,0.3)' }}
-            />
+      {appState === 'transition' && (
+        <div className="glass-panel animate-fade-in" style={{ padding: '3rem', textAlign: 'center' }}>
+          <h2 style={{ color: 'var(--primary)', marginBottom: '1rem', fontSize: '2rem' }}>
+            Subtes Selesai
+          </h2>
+          <div style={{ background: 'rgba(255,255,255,0.05)', padding: '2rem', borderRadius: '12px', marginBottom: '2rem' }}>
+            <p style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>
+              Anda telah menyelesaikan <strong>{currentSubtest.title}</strong>
+            </p>
+            <p style={{ color: 'var(--accent)', fontSize: '1.1rem' }}>
+              Waktu yang Anda gunakan: <strong>{formatTime(timeStats[currentSubtestIndex])}</strong>
+            </p>
           </div>
+          <button className="btn" style={{ padding: '16px 48px', fontSize: '1.2rem' }} onClick={nextSubtestFromTransition}>
+            Mulai Subtes {currentSubtestIndex + 2} →
+          </button>
         </div>
       )}
 
       {appState === 'test' && currentSubtest && (
         <div className="animate-fade-in">
-          {/* Header */}
           <div className="glass-panel header-nav">
             <div>
               <div style={{ fontWeight: 'bold', color: 'var(--primary)' }}>{candidateName || "Kandidat"}</div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{currentSubtest.title}</div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{currentSubtest.title} (Blok {currentBlockIndex + 1} / {totalBlocks})</div>
             </div>
             <div className={`timer ${timeLeft <= 60 ? 'warning' : ''}`}>
-              {formatTime(timeLeft)}
+              {formatTimeDigital(timeLeft)}
             </div>
           </div>
 
-          {/* Question Card */}
           <div className="glass-panel" style={{ padding: '2rem', minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
-            <div className="subtest-info">
+            <div className="subtest-info" style={{ marginBottom: '2rem' }}>
               <h2>{currentSubtest.title}</h2>
               <p style={{ color: 'var(--text-muted)' }}>Fokus: {currentSubtest.focus}</p>
-
               <div className="progress-bar">
-                <div
-                  className="progress-fill"
-                  style={{ width: `${((currentQuestionIndex + 1) / currentSubtest.questions.length) * 100}%` }}
-                ></div>
-              </div>
-              <div style={{ textAlign: 'right', fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '8px' }}>
-                Soal {currentQuestionIndex + 1} dari {currentSubtest.questions.length}
+                <div className="progress-fill" style={{ width: `${((currentBlockIndex + 1) / totalBlocks) * 100}%` }}></div>
               </div>
             </div>
 
-            <div style={{ fontSize: '1.2rem', marginBottom: '1rem', lineHeight: '1.6' }}>
-              {currentQuestion.text}
-            </div>
+            {/* Block rendering of up to 5 questions */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '3rem' }}>
+              {currentQuestions.map((q, idx) => {
+                const globalIndex = currentBlockIndex * QUESTIONS_PER_BLOCK + idx;
+                const badge = getDifficultyBadge(globalIndex, currentSubtest.questions.length);
 
-            {/* Menampilkan Gambar Jika Ada */}
-            {currentQuestion.image && (
-              <div style={{ textAlign: 'center', margin: '1rem 0 2rem 0' }}>
-                <img
-                  src={currentQuestion.image}
-                  alt="Ilustrasi Soal"
-                  style={{
-                    maxWidth: '100%',
-                    maxHeight: '200px',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
-                  }}
-                />
-              </div>
-            )}
-
-            {/* Menampilkan Inline SVG Dinamis Jika Ada */}
-            {currentQuestion.svg && (
-              <div style={{ textAlign: 'center', margin: '1rem 0 2rem 0' }}>
-                <div
-                  dangerouslySetInnerHTML={{ __html: currentQuestion.svg }}
-                  style={{ maxWidth: '400px', margin: '0 auto', display: 'flex', justifyContent: 'center' }}
-                />
-              </div>
-            )}
-
-            <div style={{ flex: 1 }}>
-              {currentQuestion.options.map((opt, idx) => {
-                const isSvg = typeof opt === 'string' && opt.includes('<svg');
                 return (
-                  <button
-                    key={idx}
-                    className={`option-btn ${answers[currentQuestion.id] === idx ? 'selected' : ''}`}
-                    onClick={() => handleSelectAnswer(idx)}
-                    style={isSvg ? { padding: '10px', display: 'flex', alignItems: 'center' } : {}}
-                  >
-                    {isSvg ? (
-                      <div dangerouslySetInnerHTML={{ __html: opt }} style={{ pointerEvents: 'none', display: 'flex', width: '100%', alignItems: 'center' }} />
-                    ) : (
-                      opt
+                  <div key={q.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '2rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                      <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Soal No. {globalIndex + 1}</span>
+                      <span style={{ fontSize: '0.8rem', padding: '4px 8px', borderRadius: '4px', background: 'rgba(0,0,0,0.3)', color: badge.color, border: `1px solid ${badge.color}` }}>
+                        {badge.text}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: '1.1rem', marginBottom: '1rem', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
+                      {q.text}
+                    </div>
+
+                    {q.image && (
+                      <div style={{ textAlign: 'center', margin: '1rem 0 2rem 0' }}>
+                        <img src={q.image} alt="Ilustrasi Soal" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.3)' }} />
+                      </div>
                     )}
-                  </button>
+
+                    {q.svg && (
+                      <div style={{ textAlign: 'center', margin: '1rem 0 2rem 0' }}>
+                        <div dangerouslySetInnerHTML={{ __html: q.svg }} style={{ maxWidth: '600px', margin: '0 auto', display: 'flex', justifyContent: 'center' }} />
+                      </div>
+                    )}
+
+                    <div>
+                      {q.options.map((opt, oIdx) => {
+                        const isSvg = typeof opt === 'string' && opt.includes('<svg');
+                        return (
+                          <button
+                            key={oIdx}
+                            className={`option-btn ${answers[q.id] === oIdx ? 'selected' : ''}`}
+                            onClick={() => handleSelectAnswer(q.id, oIdx)}
+                            style={isSvg ? { padding: '10px', display: 'flex', alignItems: 'center' } : {}}
+                          >
+                            {isSvg ? (
+                              <div dangerouslySetInnerHTML={{ __html: opt }} style={{ pointerEvents: 'none', display: 'flex', width: '100%', alignItems: 'center' }} />
+                            ) : (
+                              opt
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 );
               })}
             </div>
 
-            {/* Navigation */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid var(--glass-border)' }}>
-              <button
-                className="btn btn-secondary"
-                onClick={handlePrevQuestion}
-                disabled={currentQuestionIndex === 0}
-              >
-                ← Sebelumnya
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem', paddingTop: '1rem' }}>
+              <button className="btn btn-secondary" onClick={handlePrevBlock} disabled={currentBlockIndex === 0}>
+                ← Blok Sebelumnya
               </button>
-
-              <button
-                className="btn"
-                onClick={handleNextQuestion}
-              >
-                {currentQuestionIndex === currentSubtest.questions.length - 1 ? 'Selesai Subtes →' : 'Selanjutnya →'}
+              <button className="btn" onClick={handleNextBlock}>
+                {currentBlockIndex === totalBlocks - 1 ? 'Selesai Subtes →' : 'Blok Selanjutnya →'}
               </button>
             </div>
           </div>
@@ -592,74 +610,110 @@ function App() {
 
         return (
           <div className="glass-panel animate-fade-in" style={{ padding: '3rem' }}>
-            {/* Support / DANA Banner Paling Atas */}
-            <div style={{ textAlign: 'center', marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--glass-border)' }}>
-              <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Support Sistem Ini Secara Ikhlas via DANA</p>
-              <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'var(--accent)', letterSpacing: '2px' }}>
-                082272463816
-              </div>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Terima kasih atas apresiasi dan dukungan Anda!</p>
-            </div>
+            <h1 style={{ textAlign: 'center', marginBottom: '1rem' }}>Laporan Analitik Akhir Simulasi CAT</h1>
+            <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '2rem' }}>Kandidat: {candidateName}</p>
 
-            <h1 style={{ textAlign: 'center', marginBottom: '1rem' }}>Hasil Akhir Simulasi CAT ({candidateName || "Kandidat"})</h1>
-
-            {/* Pesan Motivasi Kelulusan */}
             <div style={{ textAlign: 'center', marginBottom: '2rem', padding: '1rem', borderRadius: '8px', background: passedTPK ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
               <h2 style={{ color: passedTPK ? 'var(--success)' : 'var(--danger)', margin: 0 }}>
-                {passedTPK ? 'Luar Biasa! Tingkatkan terus simulasinya!' : 'Tetap Semangat! Jangan menyerah dan coba lagi.'}
+                {passedTPK ? 'Luar Biasa! Anda Direkomendasikan (Lulus TPK)' : 'Tidak Lulus Ambang Batas (110 Poin).'}
               </h2>
-              <p style={{ marginTop: '0.5rem', color: 'var(--text-muted)' }}>
-                {passedTPK ? 'Persiapkan diri Anda menuju seleksi Manajer sesungguhnya.' : 'Evaluasi kelemahan Anda di tabel bawah dan coba kembali.'}
-              </p>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '3rem' }}>
               <div className="glass-panel" style={{ padding: '1.5rem', textAlign: 'center', background: passedTPK ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)' }}>
-                <h3>Skor TPK (Subtes 1-6)</h3>
+                <h3>Total Skor TPK</h3>
                 <div style={{ fontSize: '3rem', fontWeight: 'bold', color: passedTPK ? 'var(--success)' : 'var(--danger)' }}>
                   {results.tpkScore} <span style={{ fontSize: '1.2rem' }}>/ 228</span>
                 </div>
-                <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Ambang Batas: 110 Poin</div>
-                <div style={{ marginTop: '1rem', fontWeight: 'bold', color: passedTPK ? 'var(--success)' : 'var(--danger)' }}>
-                  {passedTPK ? 'MEMENUHI SYARAT (LULUS TPK)' : 'TIDAK MEMENUHI SYARAT'}
-                </div>
               </div>
-
               <div className="glass-panel" style={{ padding: '1.5rem', textAlign: 'center', background: 'rgba(59, 130, 246, 0.1)' }}>
                 <h3>Skor Manajemen (Subtes 7)</h3>
                 <div style={{ fontSize: '3rem', fontWeight: 'bold', color: 'var(--primary)' }}>
                   {results.manajerialScore} <span style={{ fontSize: '1.2rem' }}>/ 100</span>
                 </div>
-                <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Maksimal 5 Poin per Soal (20 Soal)</div>
               </div>
             </div>
 
-            <h3 style={{ marginBottom: '1rem' }}>Rincian per Subtes</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--glass-border)', color: 'var(--text-muted)' }}>
-                  <th style={{ padding: '12px' }}>Subtes</th>
-                  <th style={{ padding: '12px' }}>Benar/Terjawab</th>
-                  <th style={{ padding: '12px' }}>Salah</th>
-                  <th style={{ padding: '12px' }}>Kosong</th>
-                  <th style={{ padding: '12px' }}>Poin Didapat</th>
-                </tr>
-              </thead>
-              <tbody>
-                {results.subtestDetails.map((detail, idx) => (
-                  <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <td style={{ padding: '12px' }}>{detail.title}</td>
-                    <td style={{ padding: '12px', color: 'var(--success)' }}>{detail.correct}</td>
-                    <td style={{ padding: '12px', color: 'var(--danger)' }}>{detail.wrong}</td>
-                    <td style={{ padding: '12px', color: 'var(--text-muted)' }}>{detail.unanswered}</td>
-                    <td style={{ padding: '12px', fontWeight: 'bold' }}>{detail.score}</td>
+            <h3 style={{ marginBottom: '1rem' }}>Analisis Kecepatan & Akurasi per Subtes</h3>
+            <div style={{ overflowX: 'auto', marginBottom: '3rem' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--glass-border)', color: 'var(--text-muted)' }}>
+                    <th style={{ padding: '12px' }}>Subtes</th>
+                    <th style={{ padding: '12px' }}>Benar</th>
+                    <th style={{ padding: '12px' }}>Salah</th>
+                    <th style={{ padding: '12px' }}>Kosong</th>
+                    <th style={{ padding: '12px' }}>Poin</th>
+                    <th style={{ padding: '12px' }}>Analisis Kecepatan</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {results.subtestDetails.map((detail, idx) => {
+                    const isSlow = detail.speedAnalysis.includes('Lambat');
+                    return (
+                      <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <td style={{ padding: '12px' }}>{detail.title}</td>
+                        <td style={{ padding: '12px', color: 'var(--success)', fontWeight: 'bold' }}>{detail.correct}</td>
+                        <td style={{ padding: '12px', color: 'var(--danger)' }}>{detail.wrong}</td>
+                        <td style={{ padding: '12px', color: 'var(--text-muted)' }}>{detail.unanswered}</td>
+                        <td style={{ padding: '12px', fontWeight: 'bold' }}>{detail.score}</td>
+                        <td style={{ padding: '12px', color: isSlow ? 'var(--warning)' : 'var(--success)' }}>{detail.speedAnalysis}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
 
-            <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-              <button className="btn" onClick={() => window.location.reload()}>Ulangi Simulasi</button>
+            {results.wrongAnswersData.length > 0 && (
+              <div style={{ marginTop: '3rem' }}>
+                <h3 style={{ marginBottom: '1rem', color: 'var(--warning)' }}>Kunci Jawaban & Pembahasan (Soal TPK yang Salah / Kosong)</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  {results.wrongAnswersData.map((item, idx) => {
+                    const isSvgCorrect = item.correctAnswerText.includes('<svg');
+                    const isSvgUser = item.userAnswerText.includes('<svg');
+                    
+                    return (
+                      <div key={idx} className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>{item.subtestTitle}</div>
+                        <div style={{ fontSize: '1.05rem', marginBottom: '1rem', whiteSpace: 'pre-line' }}>{item.question.text}</div>
+                        
+                        {item.question.svg && (
+                          <div dangerouslySetInnerHTML={{ __html: item.question.svg }} style={{ maxWidth: '400px', marginBottom: '1rem' }} />
+                        )}
+
+                        <div style={{ display: 'flex', gap: '2rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                          <div style={{ flex: 1, minWidth: '200px' }}>
+                            <div style={{ fontSize: '0.85rem', color: 'var(--danger)', marginBottom: '0.2rem' }}>Jawaban Anda:</div>
+                            {isSvgUser ? (
+                               <div dangerouslySetInnerHTML={{ __html: item.userAnswerText }} style={{ transform: 'scale(0.8)', transformOrigin: 'left top' }}/>
+                            ) : (
+                               <div style={{ color: 'var(--text-main)', opacity: 0.8 }}>{item.userAnswerText}</div>
+                            )}
+                          </div>
+                          <div style={{ flex: 1, minWidth: '200px' }}>
+                            <div style={{ fontSize: '0.85rem', color: 'var(--success)', marginBottom: '0.2rem' }}>Jawaban Benar:</div>
+                            {isSvgCorrect ? (
+                               <div dangerouslySetInnerHTML={{ __html: item.correctAnswerText }} style={{ transform: 'scale(0.8)', transformOrigin: 'left top' }}/>
+                            ) : (
+                               <div style={{ color: 'var(--text-main)', fontWeight: 'bold' }}>{item.correctAnswerText}</div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '1rem', borderRadius: '8px', borderLeft: '4px solid var(--primary)' }}>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--primary)', marginBottom: '0.3rem', fontWeight: 'bold' }}>Pembahasan Singkat:</div>
+                          <div style={{ fontSize: '0.95rem' }}>{item.question.discussion || "Tidak ada pembahasan spesifik."}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            <div style={{ textAlign: 'center', marginTop: '4rem' }}>
+              <button className="btn" onClick={() => window.location.reload()}>Selesai & Kembali ke Awal</button>
             </div>
           </div>
         );
