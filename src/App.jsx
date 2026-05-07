@@ -452,6 +452,13 @@ function App() {
                   <p style={{ color: '#fff', fontSize: '0.95rem', marginTop: '1.2rem', fontWeight: 'bold', letterSpacing: '1.5px', background: 'var(--success)', padding: '8px 20px', borderRadius: '24px' }}>SCAN UNTUK MEMBAYAR</p>
                 </div>
               )}
+              
+              {selectedPackage === 'premium' && (
+                <p style={{ fontSize: '0.95rem', color: 'var(--text-main)', marginTop: '0.5rem', fontStyle: 'italic', marginBottom: '1.5rem', textAlign: 'center' }}>
+                  "Cukup bayar sekali (lebih murah dari seblak!), kode akses ini bisa dipakai seumur hidup sampai jari Anda keriting! Tenang saja, soal-soalnya di-update otomatis tiap 3 jam sekali biar otak Anda tidak sempat bernapas. 🤯🔥"
+                </p>
+              )}
+
               <a 
                 href={`https://wa.me/6282272463816?text=Halo%20Admin,%20saya%20ingin%20mengirimkan%20bukti%20pembayaran%20untuk%20mendapatkan%20kode%20akses%20Simulasi%20CAT%20${selectedPackage.toUpperCase()}.`} 
                 target="_blank" 
