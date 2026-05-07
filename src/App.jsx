@@ -278,7 +278,7 @@ function App() {
     <div className="app-container">
       {appState === 'locked' && (
         <div className="glass-panel animate-fade-in locked-screen-layout">
-          <div className="locked-left">
+          <div className="locked-left" style={{ position: 'relative', zIndex: 1, overflow: 'hidden' }}>
             <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
               <img
                 src="/kopdes.jpg"
@@ -296,30 +296,28 @@ function App() {
                 onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
               />
             </div>
-            <h1 style={{ color: 'var(--primary)', marginBottom: '1rem', fontSize: '2.2rem', textShadow: '0 2px 10px rgba(59, 130, 246, 0.3)' }}>
+            <h1 style={{ color: 'var(--primary)', marginBottom: '1rem', fontSize: '2.2rem', textShadow: '0 2px 10px rgba(59, 130, 246, 0.3)', position: 'relative', zIndex: 2 }}>
               AKSES TERKUNCI
             </h1>
             
-            {/* Animasi Mahasiswa Pintar */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
-              <img 
-                src="/smart_student.png" 
-                alt="Smart Student Eureka" 
-                className="animate-float animate-glow"
-                style={{ 
-                  width: '150px', 
-                  height: '150px', 
-                  objectFit: 'cover', 
-                  borderRadius: '50%', 
-                  border: '4px solid rgba(255,255,255,0.1)'
-                }} 
-              />
+            {/* Background Watermark Icon */}
+            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '380px', height: '380px', opacity: 0.04, pointerEvents: 'none', zIndex: 0 }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round" className="animate-float">
+                <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"></path>
+                <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"></path>
+                <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"></path>
+                <path d="M17.599 6.5a3 3 0 0 0 .399-1.375"></path>
+                <path d="M6.002 6.5A3 3 0 0 1 5.603 5.125"></path>
+                <path d="M11.8 12a1 1 0 0 0-1.15.22L8 15"></path>
+                <path d="M12.2 12a1 1 0 0 1 1.15.22l2.65 2.78"></path>
+                <path d="M12 21v-3"></path>
+              </svg>
             </div>
 
-            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '1rem', maxWidth: '350px', lineHeight: '1.6' }}>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '1rem', maxWidth: '350px', lineHeight: '1.6', position: 'relative', zIndex: 2 }}>
               Platform Simulasi CAT Premium. Menguji kemampuan kognitif, spasial visual, dan manajerial Anda secara presisi layaknya ujian seleksi sungguhan.
             </p>
-            <div style={{ marginTop: '1rem', width: '100%', maxWidth: '350px' }}>
+            <div style={{ marginTop: '1rem', width: '100%', maxWidth: '350px', position: 'relative', zIndex: 2 }}>
               <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem', textAlign: 'left' }}>
                 Sudah punya kode akses? Masukkan di bawah ini:
               </p>
