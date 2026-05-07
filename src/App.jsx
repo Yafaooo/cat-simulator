@@ -3,6 +3,61 @@ import { SUBTESTS } from './data/questions';
 import { ref, get, set } from 'firebase/database';
 import { db } from './firebase';
 
+// ============================================================
+// 🔒 PROTEKSI KODE - ANTI INSPECT & ANTI PLAGIAT
+// ============================================================
+(function() {
+  // 1. Blokir klik kanan
+  document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    return false;
+  });
+
+  // 2. Blokir shortcut keyboard DevTools & Select All
+  document.addEventListener('keydown', function(e) {
+    // F12
+    if (e.key === 'F12') { e.preventDefault(); return false; }
+    // Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+Shift+C (DevTools)
+    if (e.ctrlKey && e.shiftKey && ['I','i','J','j','C','c'].includes(e.key)) { e.preventDefault(); return false; }
+    // Ctrl+U (View Source)
+    if (e.ctrlKey && ['U','u'].includes(e.key)) { e.preventDefault(); return false; }
+    // Ctrl+A (Select All)
+    if (e.ctrlKey && ['A','a'].includes(e.key)) { e.preventDefault(); return false; }
+    // Ctrl+S (Save)
+    if (e.ctrlKey && ['S','s'].includes(e.key)) { e.preventDefault(); return false; }
+    // Ctrl+P (Print)
+    if (e.ctrlKey && ['P','p'].includes(e.key)) { e.preventDefault(); return false; }
+  });
+
+  // 3. Deteksi DevTools terbuka via ukuran window
+  const _devToolsCheck = () => {
+    const threshold = 160;
+    const widthDiff = window.outerWidth - window.innerWidth;
+    const heightDiff = window.outerHeight - window.innerHeight;
+    if (widthDiff > threshold || heightDiff > threshold) {
+      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0b1120;flex-direction:column;gap:20px"><p style="color:#ef4444;font-size:2rem;font-family:sans-serif;font-weight:bold">🔒 AKSES DITOLAK</p><p style="color:#94a3b8;font-size:1rem;font-family:sans-serif">Tutup Developer Tools untuk melanjutkan.</p></div>';
+    }
+  };
+  setInterval(_devToolsCheck, 1000);
+
+  // 4. Deteksi via console timing trick
+  let _devOpen = false;
+  const _img = new Image();
+  Object.defineProperty(_img, 'id', {
+    get: function() {
+      _devOpen = true;
+    }
+  });
+  setInterval(() => {
+    _devOpen = false;
+    console.log('%c', _img);
+    if (_devOpen) {
+      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0b1120;flex-direction:column;gap:20px"><p style="color:#ef4444;font-size:2rem;font-family:sans-serif;font-weight:bold">🔒 AKSES DITOLAK</p><p style="color:#94a3b8;font-size:1rem;font-family:sans-serif">Tutup Developer Tools untuk melanjutkan.</p></div>';
+    }
+  }, 1500);
+})();
+// ============================================================
+
 const VALID_ACCESS_CODES = [
   // 20 Kode Lama (Pertama)
   'PHTC-A1X9', 'PHTC-B2Y8', 'PHTC-C3Z7', 'PHTC-D4W6', 'PHTC-E5V5',
