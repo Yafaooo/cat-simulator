@@ -254,6 +254,59 @@ function App() {
             <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '1rem', maxWidth: '350px', lineHeight: '1.6' }}>
               Platform Simulasi CAT Premium. Menguji kemampuan kognitif, spasial visual, dan manajerial Anda secara presisi layaknya ujian seleksi sungguhan.
             </p>
+
+            {/* Card 2: Login (Sudah Punya Kode) */}
+            <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '350px', marginTop: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
+                <div style={{ background: 'rgba(255,255,255,0.1)', padding: '8px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <p style={{ color: 'var(--text-main)', margin: 0, fontWeight: 'bold', fontSize: '1.1rem' }}>
+                  Sudah punya kode akses?
+                </p>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <input
+                  type="password"
+                  placeholder="Masukkan Kode Akses..."
+                  value={accessCode}
+                  onChange={(e) => {
+                    setAccessCode(e.target.value);
+                    setAccessError('');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      verifyAccessCode(accessCode.trim());
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '14px',
+                    borderRadius: '12px',
+                    border: `1px solid ${accessError && accessError !== 'Memeriksa kode...' ? 'var(--danger)' : 'rgba(255,255,255,0.1)'}`,
+                    background: 'rgba(0,0,0,0.2)',
+                    color: 'var(--text-main)',
+                    fontSize: '1.1rem',
+                    textAlign: 'center',
+                    outline: 'none',
+                    transition: 'border 0.3s ease'
+                  }}
+                  onFocus={(e) => e.target.style.border = '1px solid var(--primary)'}
+                  onBlur={(e) => e.target.style.border = `1px solid ${accessError && accessError !== 'Memeriksa kode...' ? 'var(--danger)' : 'rgba(255,255,255,0.1)'}`}
+                />
+                {accessError && accessError !== 'Memeriksa kode...' && <div style={{ color: 'var(--danger)', marginTop: '0.8rem', fontSize: '0.9rem', textAlign: 'center' }}>{accessError}</div>}
+                {accessError === 'Memeriksa kode...' && <div style={{ color: 'var(--primary)', marginTop: '0.8rem', fontSize: '0.9rem', textAlign: 'center' }}>Sedang memverifikasi ke database...</div>}
+              </div>
+              <button
+                className="btn"
+                style={{ padding: '12px 24px', fontSize: '1.05rem', width: '100%', borderRadius: '12px', opacity: accessError === 'Memeriksa kode...' ? 0.7 : 1 }}
+                disabled={accessError === 'Memeriksa kode...'}
+                onClick={() => verifyAccessCode(accessCode.trim())}
+              >
+                {accessError === 'Memeriksa kode...' ? 'MEMERIKSA...' : 'BUKA AKSES'}
+              </button>
+            </div>
           </div>
 
           <div className="locked-right">
@@ -378,59 +431,6 @@ function App() {
                 </svg>
                 Konfirmasi via WhatsApp
               </a>
-            </div>
-
-            {/* Card 2: Login (Sudah Punya Kode) */}
-            <div style={{ background: 'rgba(255,255,255,0.02)', padding: '2rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
-                <div style={{ background: 'rgba(255,255,255,0.1)', padding: '8px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                </div>
-                <p style={{ color: 'var(--text-main)', margin: 0, fontWeight: 'bold', fontSize: '1.1rem' }}>
-                  Sudah punya kode akses?
-                </p>
-              </div>
-
-              <div style={{ marginBottom: '1.5rem' }}>
-                <input
-                  type="password"
-                  placeholder="Masukkan Kode Akses..."
-                  value={accessCode}
-                  onChange={(e) => {
-                    setAccessCode(e.target.value);
-                    setAccessError('');
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      verifyAccessCode(accessCode.trim());
-                    }
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '16px',
-                    borderRadius: '12px',
-                    border: `1px solid ${accessError && accessError !== 'Memeriksa kode...' ? 'var(--danger)' : 'rgba(255,255,255,0.1)'}`,
-                    background: 'rgba(0,0,0,0.2)',
-                    color: 'var(--text-main)',
-                    fontSize: '1.2rem',
-                    textAlign: 'center',
-                    outline: 'none',
-                    transition: 'border 0.3s ease'
-                  }}
-                  onFocus={(e) => e.target.style.border = '1px solid var(--primary)'}
-                  onBlur={(e) => e.target.style.border = `1px solid ${accessError && accessError !== 'Memeriksa kode...' ? 'var(--danger)' : 'rgba(255,255,255,0.1)'}`}
-                />
-                {accessError && accessError !== 'Memeriksa kode...' && <div style={{ color: 'var(--danger)', marginTop: '0.8rem', fontSize: '0.9rem', textAlign: 'center' }}>{accessError}</div>}
-                {accessError === 'Memeriksa kode...' && <div style={{ color: 'var(--primary)', marginTop: '0.8rem', fontSize: '0.9rem', textAlign: 'center' }}>Sedang memverifikasi ke database...</div>}
-              </div>
-              <button
-                className="btn"
-                style={{ padding: '14px 24px', fontSize: '1.1rem', width: '100%', borderRadius: '12px', opacity: accessError === 'Memeriksa kode...' ? 0.7 : 1 }}
-                disabled={accessError === 'Memeriksa kode...'}
-                onClick={() => verifyAccessCode(accessCode.trim())}
-              >
-                {accessError === 'Memeriksa kode...' ? 'MEMERIKSA...' : 'BUKA AKSES SIMULASI'}
-              </button>
             </div>
           </div>
         </div>
