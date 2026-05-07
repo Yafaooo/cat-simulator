@@ -29,6 +29,7 @@ const VALID_ACCESS_CODES = [
 
 function App() {
   const [appState, setAppState] = useState('locked'); // locked, intro, test, result
+  const [selectedPayment, setSelectedPayment] = useState(null); // 'dana' | 'qris'
   const [accessCode, setAccessCode] = useState('');
   const [accessError, setAccessError] = useState('');
   const [deviceId] = useState(() => {
@@ -268,43 +269,89 @@ function App() {
               <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '1.5rem', width: '100%' }}>
                 
                 {/* DANA Option */}
-                <div style={{ flex: '1', minWidth: '180px', background: 'rgba(0,0,0,0.2)', padding: '1.2rem 1rem', borderRadius: '12px', border: '1px solid rgba(59, 130, 246, 0.3)', textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                  <p style={{ color: 'var(--primary)', fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '1.1rem' }}>Transfer DANA</p>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'var(--accent)', letterSpacing: '1px', marginBottom: '0.5rem' }}>
-                    082272463816
-                  </div>
+                <div 
+                  onClick={() => setSelectedPayment('dana')}
+                  style={{ 
+                    flex: '1', minWidth: '180px', 
+                    background: selectedPayment === 'dana' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(0,0,0,0.2)', 
+                    padding: '1.5rem 1rem', borderRadius: '16px', 
+                    border: selectedPayment === 'dana' ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.1)', 
+                    textAlign: 'center', display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                    cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                    transform: selectedPayment === 'dana' ? 'scale(1.05)' : 'scale(1)',
+                    boxShadow: selectedPayment === 'dana' ? '0 10px 25px rgba(59, 130, 246, 0.25)' : 'none'
+                  }}
+                >
+                  <p style={{ color: selectedPayment === 'dana' ? 'var(--primary)' : 'var(--text-main)', fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '1.1rem', transition: 'color 0.3s ease' }}>Transfer DANA</p>
+                  
+                  {selectedPayment === 'dana' ? (
+                    <div className="animate-fade-in" style={{ marginTop: '0.5rem' }}>
+                      <div style={{ fontSize: '1.6rem', fontWeight: 'bold', color: 'var(--accent)', letterSpacing: '2px', marginBottom: '0.5rem', textShadow: '0 2px 10px rgba(245, 158, 11, 0.4)' }}>
+                        082272463816
+                      </div>
+                      <p style={{ fontSize: '0.85rem', color: '#fff', background: 'var(--primary)', display: 'inline-block', padding: '4px 16px', borderRadius: '20px', fontWeight: '600' }}>a.n Yafaooo</p>
+                    </div>
+                  ) : (
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Klik untuk melihat nomor</p>
+                  )}
                 </div>
 
                 {/* QRIS Option */}
-                <div style={{ flex: '1', minWidth: '180px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <div 
+                  onClick={() => setSelectedPayment('qris')}
+                  style={{ 
+                    flex: '1', minWidth: '180px', 
+                    background: selectedPayment === 'qris' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(0,0,0,0.2)',
+                    padding: '1.5rem 1rem', borderRadius: '16px', 
+                    border: selectedPayment === 'qris' ? '2px solid var(--success)' : '1px solid rgba(255,255,255,0.1)',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                    transform: selectedPayment === 'qris' ? 'scale(1.05)' : 'scale(1)',
+                    boxShadow: selectedPayment === 'qris' ? '0 10px 25px rgba(16, 185, 129, 0.25)' : 'none'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={selectedPayment === 'qris' ? 'var(--success)' : 'var(--text-main)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'stroke 0.3s ease' }}>
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                      <rect x="7" y="7" width="3" height="3"></rect>
+                      <rect x="14" y="7" width="3" height="3"></rect>
+                      <rect x="7" y="14" width="3" height="3"></rect>
+                      <rect x="14" y="14" width="3" height="3"></rect>
+                    </svg>
+                    <p style={{ color: selectedPayment === 'qris' ? 'var(--success)' : 'var(--text-main)', fontWeight: 'bold', fontSize: '1.1rem', margin: 0, transition: 'color 0.3s ease' }}>Scan QRIS</p>
+                  </div>
+                  
+                  {selectedPayment !== 'qris' && (
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Klik untuk membesarkan QR</p>
+                  )}
+                </div>
+
+              </div>
+
+              {/* QRIS POPUP / ENLARGED VIEW */}
+              {selectedPayment === 'qris' && (
+                <div className="animate-fade-in" style={{ marginBottom: '1.5rem', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <div style={{
                     background: '#fff',
-                    padding: '6px',
-                    borderRadius: '12px',
-                    boxShadow: '0 8px 25px rgba(0,0,0,0.4)',
-                    border: '2px solid var(--primary)',
-                    transition: 'transform 0.3s ease',
-                    cursor: 'pointer'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                  onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                  >
+                    padding: '16px',
+                    borderRadius: '20px',
+                    boxShadow: '0 15px 40px rgba(16, 185, 129, 0.3)',
+                    border: '4px solid var(--success)',
+                  }}>
                     <img 
                       src="/qris.jpeg" 
                       alt="QRIS Payment" 
                       style={{
-                        width: '120px',
-                        height: '120px',
-                        objectFit: 'cover',
-                        borderRadius: '8px',
+                        width: '240px',
+                        height: 'auto',
+                        borderRadius: '12px',
                         display: 'block'
                       }}
                     />
                   </div>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '0.8rem', fontWeight: 'bold', letterSpacing: '0.5px' }}>SCAN QRIS ALL PAYMENT</p>
+                  <p style={{ color: '#fff', fontSize: '0.95rem', marginTop: '1.2rem', fontWeight: 'bold', letterSpacing: '1.5px', background: 'var(--success)', padding: '8px 20px', borderRadius: '24px', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)' }}>SCAN UNTUK MEMBAYAR</p>
                 </div>
-
-              </div>
+              )}
 
               <p style={{ fontSize: '0.95rem', color: 'var(--text-main)', marginTop: '0.5rem', fontStyle: 'italic', marginBottom: '1.5rem', textAlign: 'center', background: 'rgba(59, 130, 246, 0.1)', padding: '12px', borderRadius: '8px', borderLeft: '4px solid var(--primary)' }}>
                 "Cukup bayar sekali (lebih murah dari seblak!), kode akses ini bisa dipakai seumur hidup sampai jari Anda keriting! Tenang saja, soal-soalnya di-update otomatis tiap 3 jam sekali biar otak Anda tidak sempat bernapas. 🤯🔥"
