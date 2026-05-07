@@ -27,6 +27,19 @@ const VALID_ACCESS_CODES = [
   'PHTC-L1S4', 'PHTC-T8X9', 'PHTC-Z3W6', 'PHTC-N4V2', 'PHTC-H7F1'
 ];
 
+const VALID_VVIP_CODES = [
+  'VVIP-L9K4', 'VVIP-M2Q8', 'VVIP-X7N1', 'VVIP-W4Z5', 'VVIP-P3V6',
+  'VVIP-C8T2', 'VVIP-R5F9', 'VVIP-J1H7', 'VVIP-B6D3', 'VVIP-Y9G4',
+  'VVIP-N2S8', 'VVIP-K5M1', 'VVIP-T8Q4', 'VVIP-F3Z9', 'VVIP-V7P2',
+  'VVIP-D1X6', 'VVIP-G9H5', 'VVIP-S4C8', 'VVIP-L6W3', 'VVIP-M1R7',
+  'VVIP-X5F2', 'VVIP-P8N9', 'VVIP-C3V4', 'VVIP-R7T1', 'VVIP-J4D6',
+  'VVIP-B2Y8', 'VVIP-W9K5', 'VVIP-H6Q3', 'VVIP-Y1Z7', 'VVIP-N5P4',
+  'VVIP-K8X2', 'VVIP-T3G9', 'VVIP-F7C5', 'VVIP-V2S1', 'VVIP-D6M8',
+  'VVIP-G4L3', 'VVIP-S9W7', 'VVIP-M5H2', 'VVIP-X1R6', 'VVIP-P7F4',
+  'VVIP-C2N9', 'VVIP-R8V5', 'VVIP-J6T3', 'VVIP-B4D1', 'VVIP-W7Y6',
+  'VVIP-H3K8', 'VVIP-Y5Q2', 'VVIP-N1Z9', 'VVIP-K9P5', 'VVIP-T4X7'
+];
+
 function App() {
   const [appState, setAppState] = useState('locked'); // locked, intro, test, transition, result
   const [selectedPayment, setSelectedPayment] = useState(null);
@@ -81,8 +94,12 @@ function App() {
   }, [appState]);
 
   const verifyAccessCode = async (code, packageType = 'premium') => {
-    if (!VALID_ACCESS_CODES.includes(code)) {
-      setAccessError('Kode akses salah!');
+    const isValid = packageType === 'vvip' 
+      ? VALID_VVIP_CODES.includes(code)
+      : VALID_ACCESS_CODES.includes(code);
+
+    if (!isValid) {
+      setAccessError(`Kode akses ${packageType.toUpperCase()} salah!`);
       return;
     }
     setAccessError('Memeriksa kode...');
