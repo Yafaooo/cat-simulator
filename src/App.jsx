@@ -33,6 +33,7 @@ function App() {
   const [selectedPackage, setSelectedPackage] = useState('premium'); // 'premium' | 'vvip'
   const [accessCode, setAccessCode] = useState('');
   const [accessError, setAccessError] = useState('');
+  const [typedAdminText, setTypedAdminText] = useState('');
   const [deviceId] = useState(() => {
     let id = localStorage.getItem('phtc_device_id');
     if (!id) {
@@ -64,6 +65,20 @@ function App() {
       setAppState('intro');
     }
   }, []);
+
+  useEffect(() => {
+    if (appState === 'locked') {
+      const fullText = "Halo! 👋 Segera amankan kode aksesmu. Sistem ini dilengkapi Timer Realtime, Sistem Blok Soal, dan Analitik Akurasi persis seperti ujian aslinya!";
+      let i = 0;
+      setTypedAdminText('');
+      const interval = setInterval(() => {
+        setTypedAdminText(fullText.substring(0, i));
+        i++;
+        if (i > fullText.length) clearInterval(interval);
+      }, 35);
+      return () => clearInterval(interval);
+    }
+  }, [appState]);
 
   const verifyAccessCode = async (code, packageType = 'premium') => {
     if (!VALID_ACCESS_CODES.includes(code)) {
@@ -301,6 +316,22 @@ function App() {
               AKSES TERKUNCI
             </h1>
             
+            {/* Admin Virtual Assistant Inline */}
+            <div className="animate-fade-in" style={{ display: 'flex', alignItems: 'flex-start', gap: '15px', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '16px', padding: '16px', marginBottom: '1.5rem', position: 'relative', zIndex: 2, boxShadow: '0 8px 32px rgba(0,0,0,0.3)', maxWidth: '380px' }}>
+              <div style={{ position: 'relative', width: '55px', height: '55px', flexShrink: 0, background: 'rgba(255,255,255,0.05)', borderRadius: '50%', border: '2px solid rgba(59, 130, 246, 0.5)' }}>
+                <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60e/512.gif" alt="Admin Kece" style={{ width: '100%', height: '100%', objectFit: 'contain', transform: 'scale(1.15)' }} />
+                <span className="online-dot" style={{ position: 'absolute', bottom: '0', right: '0', width: '14px', height: '14px', background: 'var(--success)', borderRadius: '50%', border: '2px solid #0f172a', animation: 'pulseDot 2s infinite' }}></span>
+              </div>
+              <div style={{ flex: 1 }}>
+                <strong style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-main)', marginBottom: '6px', fontSize: '1rem' }}>
+                  Admin Kece <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="var(--primary)"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7L6 12.6l1.5-1.5 2.6 2.6 6.4-6.4 1.5 1.5-7.9 7.9z"/></svg>
+                </strong>
+                <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--accent)', lineHeight: '1.5', minHeight: '60px' }}>
+                  {typedAdminText}<span className="cursor-blink">|</span>
+                </p>
+              </div>
+            </div>
+
             {/* Background Watermark Icon */}
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '380px', height: '380px', opacity: 0.04, pointerEvents: 'none', zIndex: 0 }}>
               <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round" className="animate-float">
@@ -487,23 +518,6 @@ function App() {
               </a>
             </div>
           </div>
-        </div>
-
-        {/* Floating Notification */}
-        <div className="floating-notification">
-          <div className="notification-avatar" style={{ background: 'rgba(255,255,255,0.1)', border: '2px solid rgba(59, 130, 246, 0.5)', width: '60px', height: '60px' }}>
-            <img 
-              src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60e/512.gif" 
-              alt="Admin 3D" 
-              style={{ width: '100%', height: '100%', objectFit: 'contain', transform: 'scale(1.15)' }} 
-            />
-            <span className="online-dot" style={{ bottom: '2px', right: '0px', width: '16px', height: '16px' }}></span>
-          </div>
-          <div className="notification-content">
-            <strong>Admin Kece <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="var(--primary)"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7L6 12.6l1.5-1.5 2.6 2.6 6.4-6.4 1.5 1.5-7.9 7.9z"/></svg></strong>
-            <p>👋 Segera order kode aksesmu sekarang supaya persiapan lebih matang!<br/><br/><span style={{color: 'var(--accent)'}}>Sistem simulasi ini dilengkapi Timer Realtime, Sistem Blok Soal, dan Analitik Akurasi persis seperti ujian aslinya.</span></p>
-          </div>
-        </div>
         </>
       )}
 
