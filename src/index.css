@@ -130,8 +130,28 @@ body::before {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+  50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.8), 0 0 20px rgba(245, 158, 11, 0.6); }
+  100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: pulseGlow 3s infinite;
 }
 
 /* Specific Layouts */

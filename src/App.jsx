@@ -299,6 +299,23 @@ function App() {
             <h1 style={{ color: 'var(--primary)', marginBottom: '1rem', fontSize: '2.2rem', textShadow: '0 2px 10px rgba(59, 130, 246, 0.3)' }}>
               AKSES TERKUNCI
             </h1>
+            
+            {/* Animasi Mahasiswa Pintar */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+              <img 
+                src="/smart_student.png" 
+                alt="Smart Student Eureka" 
+                className="animate-float animate-glow"
+                style={{ 
+                  width: '150px', 
+                  height: '150px', 
+                  objectFit: 'cover', 
+                  borderRadius: '50%', 
+                  border: '4px solid rgba(255,255,255,0.1)'
+                }} 
+              />
+            </div>
+
             <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '1rem', maxWidth: '350px', lineHeight: '1.6' }}>
               Platform Simulasi CAT Premium. Menguji kemampuan kognitif, spasial visual, dan manajerial Anda secara presisi layaknya ujian seleksi sungguhan.
             </p>
