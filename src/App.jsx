@@ -349,7 +349,7 @@ function App() {
                 </button>
                 <button
                   className="btn"
-                  style={{ padding: '12px', fontSize: '1.05rem', flex: 1, background: 'var(--warning)', color: '#000', opacity: accessError === 'Memeriksa kode...' ? 0.7 : 1 }}
+                  style={{ padding: '12px', fontSize: '1.05rem', flex: 1, background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#fff', boxShadow: '0 4px 15px rgba(245, 158, 11, 0.4)', opacity: accessError === 'Memeriksa kode...' ? 0.7 : 1 }}
                   disabled={accessError === 'Memeriksa kode...'}
                   onClick={() => verifyAccessCode(accessCode.trim(), 'vvip')}
                 >
@@ -365,13 +365,13 @@ function App() {
               <div style={{ display: 'flex', gap: '10px', marginBottom: '1.5rem', background: 'rgba(0,0,0,0.2)', padding: '6px', borderRadius: '12px' }}>
                 <button 
                   onClick={() => setSelectedPackage('premium')}
-                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: selectedPackage === 'premium' ? 'var(--primary)' : 'transparent', color: selectedPackage === 'premium' ? '#fff' : 'var(--text-muted)', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s ease' }}
+                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: selectedPackage === 'premium' ? 'var(--primary)' : 'transparent', color: selectedPackage === 'premium' ? '#fff' : 'var(--text-muted)', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s ease', boxShadow: selectedPackage === 'premium' ? '0 4px 15px var(--primary-glow)' : 'none' }}
                 >
                   Premium (Rp 10k)
                 </button>
                 <button 
                   onClick={() => setSelectedPackage('vvip')}
-                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: selectedPackage === 'vvip' ? 'var(--warning)' : 'transparent', color: selectedPackage === 'vvip' ? '#000' : 'var(--text-muted)', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s ease' }}
+                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: selectedPackage === 'vvip' ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'transparent', color: selectedPackage === 'vvip' ? '#fff' : 'var(--text-muted)', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s ease', boxShadow: selectedPackage === 'vvip' ? '0 4px 15px rgba(245, 158, 11, 0.4)' : 'none' }}
                 >
                   VVIP (Rp 35k)
                 </button>
@@ -388,11 +388,11 @@ function App() {
                 </>
               ) : (
                 <>
-                  <p style={{ color: 'var(--warning)', marginBottom: '1rem', fontWeight: 'bold' }}>
+                  <p style={{ color: 'var(--accent)', marginBottom: '1rem', fontWeight: 'bold' }}>
                     Dapatkan Kode Akses Simulasi VVIP
                   </p>
                   <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
-                    Investasi <strong style={{ color: 'var(--warning)' }}>Rp 35.000</strong> (seharga nongkrong di kafe) untuk masa depan yang cerah! 90% soal mirip aslinya, super lengkap dengan kunci jawaban dan pembahasan biar kamu nggak overthinking tengah malam. Dijamin otak auto-encer dan siap tempur! 🚀😎
+                    Investasi <strong style={{ color: 'var(--accent)' }}>Rp 35.000</strong> (seharga nongkrong di kafe) untuk masa depan yang cerah! 90% soal mirip aslinya, super lengkap dengan kunci jawaban dan pembahasan biar kamu nggak overthinking tengah malam. Dijamin otak auto-encer dan siap tempur! 🚀😎
                   </p>
                 </>
               )}
@@ -452,7 +452,14 @@ function App() {
                   <p style={{ color: '#fff', fontSize: '0.95rem', marginTop: '1.2rem', fontWeight: 'bold', letterSpacing: '1.5px', background: 'var(--success)', padding: '8px 20px', borderRadius: '24px' }}>SCAN UNTUK MEMBAYAR</p>
                 </div>
               )}
-              <a href={`https://wa.me/6282272463816?text=Halo%20Admin,%20saya%20ingin%20mengirimkan%20bukti%20pembayaran%20untuk%20mendapatkan%20kode%20akses%20Simulasi%20CAT%20${selectedPackage.toUpperCase()}.`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', fontSize: '1rem', background: '#25D366', color: '#fff', textDecoration: 'none', borderRadius: '8px', fontWeight: 'bold' }}>
+              <a 
+                href={`https://wa.me/6282272463816?text=Halo%20Admin,%20saya%20ingin%20mengirimkan%20bukti%20pembayaran%20untuk%20mendapatkan%20kode%20akses%20Simulasi%20CAT%20${selectedPackage.toUpperCase()}.`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px 28px', fontSize: '1.1rem', background: 'linear-gradient(135deg, #ec4899, #8b5cf6)', color: '#fff', textDecoration: 'none', borderRadius: '12px', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(236, 72, 153, 0.4)', transition: 'all 0.3s ease', width: '100%', textTransform: 'uppercase', letterSpacing: '1px' }}
+                onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(236, 72, 153, 0.6)'; }}
+                onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 15px rgba(236, 72, 153, 0.4)'; }}
+              >
                 Kirim Bukti Pembayaran
               </a>
             </div>
