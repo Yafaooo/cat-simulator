@@ -74,9 +74,11 @@ function App() {
 
   useEffect(() => {
     const savedCode = localStorage.getItem('phtc_access_code');
-    if (savedCode && VALID_ACCESS_CODES.includes(savedCode)) {
+    const savedType = localStorage.getItem('phtc_package_type');
+    if (savedCode && savedType === 'premium' && VALID_ACCESS_CODES.includes(savedCode)) {
       setAppState('intro');
     }
+    // VVIP tidak perlu setAppState karena redirect ke URL lain
   }, []);
 
   useEffect(() => {
@@ -94,22 +96,43 @@ function App() {
   }, [appState]);
 
   const verifyAccessCode = async (code, packageType = 'premium') => {
-    const isValid = packageType === 'vvip' 
-      ? VALID_VVIP_CODES.includes(code)
-      : VALID_ACCESS_CODES.includes(code);
+    // Cek apakah kode sesuai dengan tipe paket yang dipilih
+    const isPremiumCode = VALID_ACCESS_CODES.includes(code);
+    const isVVIPCode = VALID_VVIP_CODES.includes(code);
 
-    if (!isValid) {
-      setAccessError(`Kode akses ${packageType.toUpperCase()} salah!`);
+    if (packageType === 'vvip' && !isVVIPCode) {
+      setAccessError('❌ Kode ini bukan kode VVIP!');
       return;
     }
+    if (packageType === 'premium' && !isPremiumCode) {
+      // Cek jika orang nyoba pakai kode VVIP di tombol Premium
+      if (isVVIPCode) {
+        setAccessError('❌ Kode VVIP tidak bisa dipakai di tombol Premium!');
+      } else {
+        setAccessError('❌ Kode akses Premium salah!');
+      }
+      return;
+    }
+    // Proteksi ganda: kode Premium tidak boleh tembus ke VVIP dan sebaliknya
+    if (packageType === 'vvip' && isPremiumCode && !isVVIPCode) {
+      setAccessError('❌ Kode Premium tidak bisa akses VVIP!');
+      return;
+    }
+
     setAccessError('Memeriksa kode...');
     try {
       const codeRef = ref(db, `codes/${code}`);
       const snapshot = await get(codeRef);
       if (snapshot.exists()) {
         const data = snapshot.val();
+        // Validasi: kode sudah dipakai sebelumnya, cek tipe paketnya cocok tidak
+        if (data.packageType && data.packageType !== packageType) {
+          setAccessError(`❌ Kode ini sudah terdaftar sebagai paket ${data.packageType.toUpperCase()}, bukan ${packageType.toUpperCase()}!`);
+          return;
+        }
         if (data.deviceId === deviceId) {
           localStorage.setItem('phtc_access_code', code);
+          localStorage.setItem('phtc_package_type', packageType);
           if (packageType === 'vvip') {
              window.location.href = 'https://catreal.vercel.app/';
           } else {
@@ -119,12 +142,15 @@ function App() {
           setAccessError('Kode sudah digunakan di perangkat lain!');
         }
       } else {
+        // Pertama kali dipakai - simpan tipe paket ke Firebase
         await set(codeRef, {
           used: true,
           deviceId: deviceId,
+          packageType: packageType,
           claimedAt: new Date().toISOString()
         });
         localStorage.setItem('phtc_access_code', code);
+        localStorage.setItem('phtc_package_type', packageType);
         if (packageType === 'vvip') {
            window.location.href = 'https://catreal.vercel.app/';
         } else {
