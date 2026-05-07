@@ -493,7 +493,7 @@ function App() {
         <div className="floating-notification">
           <div className="notification-avatar" style={{ background: 'rgba(255,255,255,0.1)', border: '2px solid rgba(59, 130, 246, 0.5)', width: '60px', height: '60px' }}>
             <img 
-              src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f468_200d_1f4bb/512.gif" 
+              src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f60e/512.gif" 
               alt="Admin 3D" 
               style={{ width: '100%', height: '100%', objectFit: 'contain', transform: 'scale(1.15)' }} 
             />
