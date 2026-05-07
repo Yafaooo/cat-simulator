@@ -500,7 +500,7 @@ function App() {
             <span className="online-dot" style={{ bottom: '2px', right: '0px', width: '16px', height: '16px' }}></span>
           </div>
           <div className="notification-content">
-            <strong>Admin PHTC <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="var(--primary)"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7L6 12.6l1.5-1.5 2.6 2.6 6.4-6.4 1.5 1.5-7.9 7.9z"/></svg></strong>
+            <strong>Admin Kece <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="var(--primary)"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7L6 12.6l1.5-1.5 2.6 2.6 6.4-6.4 1.5 1.5-7.9 7.9z"/></svg></strong>
             <p>👋 Segera order kode aksesmu sekarang supaya persiapan lebih matang!<br/><br/><span style={{color: 'var(--accent)'}}>Sistem simulasi ini dilengkapi Timer Realtime, Sistem Blok Soal, dan Analitik Akurasi persis seperti ujian aslinya.</span></p>
           </div>
         </div>
