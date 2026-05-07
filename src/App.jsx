@@ -125,11 +125,19 @@ function App() {
       const snapshot = await get(codeRef);
       if (snapshot.exists()) {
         const data = snapshot.val();
-        // Validasi: kode sudah dipakai sebelumnya, cek tipe paketnya cocok tidak
-        if (data.packageType && data.packageType !== packageType) {
-          setAccessError(`❌ Kode ini sudah terdaftar sebagai paket ${data.packageType.toUpperCase()}, bukan ${packageType.toUpperCase()}!`);
+        
+        // Proteksi KUAT: gunakan daftar lokal sebagai hakim utama
+        // Kode premium tidak bisa masuk VVIP, kode VVIP tidak bisa masuk Premium
+        // Ini berlaku untuk semua kode (lama maupun baru) tanpa bergantung data Firebase
+        if (packageType === 'vvip' && !isVVIPCode) {
+          setAccessError('❌ Kode ini bukan kode VVIP!');
           return;
         }
+        if (packageType === 'premium' && !isPremiumCode) {
+          setAccessError('❌ Kode ini bukan kode Premium!');
+          return;
+        }
+
         if (data.deviceId === deviceId) {
           localStorage.setItem('phtc_access_code', code);
           localStorage.setItem('phtc_package_type', packageType);
