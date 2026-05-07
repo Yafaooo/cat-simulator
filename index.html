@@ -1,12 +1,37 @@
 <!doctype html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CAT Simulator - KDKMP PHTC 2026</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CAT Simulator - KDKMP PHTC 2026</title>
+  <script>
+    // 🔒 Anti-Inspect Protection (runs before React loads)
+    (function () {
+      // Blokir klik kanan
+      document.addEventListener('contextmenu', function (e) { e.preventDefault(); return false; }, true);
+      // Blokir keyboard shortcuts
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && 'ijcIJC'.includes(e.key)) || (e.ctrlKey && 'uUsSpPaA'.includes(e.key))) {
+          e.preventDefault(); e.stopPropagation(); return false;
+        }
+      }, true);
+      // Deteksi DevTools via ukuran window
+      function checkDevTools() {
+        if (window.outerWidth - window.innerWidth > 200 || window.outerHeight - window.innerHeight > 200) {
+          document.body.style.cssText = 'background:#0b1120';
+          document.body.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:#0b1120;color:#fff;font-family:sans-serif;gap:16px"><div style="font-size:4rem">🔒</div><h1 style="color:#ef4444;font-size:1.8rem;margin:0">AKSES DITOLAK</h1><p style="color:#94a3b8;margin:0">Tutup Developer Tools untuk melanjutkan.</p></div>';
+        }
+      }
+      setInterval(checkDevTools, 500);
+      window.addEventListener('resize', checkDevTools);
+    })();
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>

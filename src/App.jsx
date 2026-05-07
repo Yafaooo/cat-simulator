@@ -116,8 +116,25 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [answers, setAnswers] = useState({}); // { "1-1": 2, "1-2": 1, ... }
   const [timeStats, setTimeStats] = useState({}); // { 0: 300, 1: 400 ... } -> time spent in seconds per subtest
+  const [totalPeserta, setTotalPeserta] = useState(256);
 
-  const QUESTIONS_PER_BLOCK = 5;
+  useEffect(() => {
+    const fetchPeserta = async () => {
+      try {
+        const codesRef = ref(db, 'codes');
+        const snapshot = await get(codesRef);
+        if (snapshot.exists()) {
+          const count = Object.keys(snapshot.val()).length;
+          setTotalPeserta(256 + count);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchPeserta();
+  }, []);
+
+  const QUESTIONS_PER_BLOCK = 1;
   const currentSubtest = SUBTESTS[currentSubtestIndex];
   
   const currentQuestions = currentSubtest ? currentSubtest.questions.slice(
@@ -455,6 +472,10 @@ function App() {
             <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '1rem', maxWidth: '350px', lineHeight: '1.6', position: 'relative', zIndex: 2 }}>
               Platform Simulasi CAT Premium. Menguji kemampuan kognitif, spasial visual, dan manajerial Anda secara presisi layaknya ujian seleksi sungguhan.
             </p>
+            <div className="animate-fade-in" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)', padding: '8px 20px', borderRadius: '30px', display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '1.5rem', position: 'relative', zIndex: 2, boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }}>
+              <span style={{ display: 'inline-block', width: '8px', height: '8px', background: 'var(--success)', borderRadius: '50%', animation: 'pulseDot 2s infinite' }}></span>
+              <span style={{ color: 'var(--text-main)', fontSize: '0.9rem', fontWeight: 'bold' }}>Total Peserta Aktif: <span style={{ color: 'var(--primary)', fontSize: '1.05rem' }}>{totalPeserta}</span> Orang</span>
+            </div>
             <div style={{ marginTop: '1rem', width: '100%', maxWidth: '350px', position: 'relative', zIndex: 2 }}>
               <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem', textAlign: 'left' }}>
                 Sudah punya kode akses? Masukkan di bawah ini:
@@ -656,7 +677,7 @@ function App() {
               * Peringatan: Waktu akan berjalan otomatis. Jika waktu habis, sistem akan melanjutkan ke subtes berikutnya.
             </p>
             <p style={{ marginTop: '0.5rem', color: 'var(--warning)', fontSize: '0.9rem' }}>
-              * Fitur Baru: Soal akan ditampilkan per blok (5 soal). Anda dapat menavigasi blok dengan tombol "Selanjutnya".
+              * Navigasi: Soal akan ditampilkan satu per satu. Anda dapat menavigasi dengan tombol "Selanjutnya".
             </p>
           </div>
           <button className="btn btn-success" style={{ padding: '16px 48px', fontSize: '1.2rem', opacity: candidateName.trim() === '' ? 0.5 : 1 }} onClick={startTest} disabled={candidateName.trim() === ''}>
@@ -689,7 +710,7 @@ function App() {
           <div className="glass-panel header-nav">
             <div>
               <div style={{ fontWeight: 'bold', color: 'var(--primary)' }}>{candidateName || "Kandidat"}</div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{currentSubtest.title} (Blok {currentBlockIndex + 1} / {totalBlocks})</div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{currentSubtest.title} (Soal {currentBlockIndex + 1} / {totalBlocks})</div>
             </div>
             <div className={`timer ${timeLeft <= 60 ? 'warning' : ''}`}>
               {formatTimeDigital(timeLeft)}
@@ -762,10 +783,10 @@ function App() {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem', paddingTop: '1rem' }}>
               <button className="btn btn-secondary" onClick={handlePrevBlock} disabled={currentBlockIndex === 0}>
-                ← Blok Sebelumnya
+                ← Soal Sebelumnya
               </button>
               <button className="btn" onClick={handleNextBlock}>
-                {currentBlockIndex === totalBlocks - 1 ? 'Selesai Subtes →' : 'Blok Selanjutnya →'}
+                {currentBlockIndex === totalBlocks - 1 ? 'Selesai Subtes →' : 'Soal Selanjutnya →'}
               </button>
             </div>
           </div>
@@ -833,52 +854,7 @@ function App() {
               </table>
             </div>
 
-            {results.wrongAnswersData.length > 0 && (
-              <div style={{ marginTop: '3rem' }}>
-                <h3 style={{ marginBottom: '1rem', color: 'var(--warning)' }}>Kunci Jawaban & Pembahasan (Soal TPK yang Salah / Kosong)</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                  {results.wrongAnswersData.map((item, idx) => {
-                    const isSvgCorrect = item.correctAnswerText.includes('<svg');
-                    const isSvgUser = item.userAnswerText.includes('<svg');
-                    
-                    return (
-                      <div key={idx} className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>{item.subtestTitle}</div>
-                        <div style={{ fontSize: '1.05rem', marginBottom: '1rem', whiteSpace: 'pre-line' }}>{item.question.text}</div>
-                        
-                        {item.question.svg && (
-                          <div dangerouslySetInnerHTML={{ __html: item.question.svg }} style={{ maxWidth: '400px', marginBottom: '1rem' }} />
-                        )}
 
-                        <div style={{ display: 'flex', gap: '2rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                          <div style={{ flex: 1, minWidth: '200px' }}>
-                            <div style={{ fontSize: '0.85rem', color: 'var(--danger)', marginBottom: '0.2rem' }}>Jawaban Anda:</div>
-                            {isSvgUser ? (
-                               <div dangerouslySetInnerHTML={{ __html: item.userAnswerText }} style={{ transform: 'scale(0.8)', transformOrigin: 'left top' }}/>
-                            ) : (
-                               <div style={{ color: 'var(--text-main)', opacity: 0.8 }}>{item.userAnswerText}</div>
-                            )}
-                          </div>
-                          <div style={{ flex: 1, minWidth: '200px' }}>
-                            <div style={{ fontSize: '0.85rem', color: 'var(--success)', marginBottom: '0.2rem' }}>Jawaban Benar:</div>
-                            {isSvgCorrect ? (
-                               <div dangerouslySetInnerHTML={{ __html: item.correctAnswerText }} style={{ transform: 'scale(0.8)', transformOrigin: 'left top' }}/>
-                            ) : (
-                               <div style={{ color: 'var(--text-main)', fontWeight: 'bold' }}>{item.correctAnswerText}</div>
-                            )}
-                          </div>
-                        </div>
-
-                        <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '1rem', borderRadius: '8px', borderLeft: '4px solid var(--primary)' }}>
-                          <div style={{ fontSize: '0.85rem', color: 'var(--primary)', marginBottom: '0.3rem', fontWeight: 'bold' }}>Pembahasan Singkat:</div>
-                          <div style={{ fontSize: '0.95rem' }}>{item.question.discussion || "Tidak ada pembahasan spesifik."}</div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
 
             <div style={{ textAlign: 'center', marginTop: '4rem' }}>
               <button className="btn" onClick={() => window.location.reload()}>Selesai & Kembali ke Awal</button>
