@@ -589,6 +589,13 @@ function App() {
                 </button>
               </div>
             </div>
+            
+            {/* Disclaimer Section */}
+            <div className="animate-fade-in" style={{ marginTop: '2.5rem', padding: '15px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', position: 'relative', zIndex: 2, maxWidth: '380px' }}>
+              <p style={{ margin: 0, fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', lineHeight: '1.6', textAlign: 'justify' }}>
+                <strong style={{ color: 'rgba(255,255,255,0.6)' }}>Disclaimer:</strong> Sistem simulasi ini adalah media pembelajaran mandiri. Soal-soal di dalamnya merupakan hasil pengembangan tim berdasarkan kisi-kisi umum dan tidak merepresentasikan soal bocoran dari instansi manapun.
+              </p>
+            </div>
           </div>
           <div className="locked-right">
             <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem', border: '1px solid var(--glass-border)' }}>
