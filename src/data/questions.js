@@ -221,31 +221,49 @@ const genPU = () => {
 const svgOptionWrapper = (content) => `<span style="font-weight:bold;font-size:1.2rem;min-width:30px;display:inline-block;vertical-align:middle;"></span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="height:60px;background:rgba(255,255,255,0.05);border-radius:8px;vertical-align:middle;margin-left:8px;">${content}</svg>`;
 
 // === 4. VISUAL REASONING & SEQUENCING (55 Soal) ===
+// === 4. VISUAL REASONING & SEQUENCING (55 Soal) ===
 const genPola = () => {
   let res = [];
   
-  const drawComplexSVG = (type, color, rot, scale) => {
+  const drawComplexSVG = (t1, t2, c1, c2, rot, scale) => {
+    let outer = '';
     let inner = '';
-    if (type === 0) inner = `<rect x="20" y="20" width="60" height="60" fill="${color}"/><circle cx="50" cy="50" r="10" fill="white"/>`;
-    else if (type === 1) inner = `<polygon points="50,10 90,90 10,90" fill="${color}"/><rect x="40" y="60" width="20" height="20" fill="white"/>`;
-    else if (type === 2) inner = `<circle cx="50" cy="50" r="40" fill="${color}"/><polygon points="50,20 70,70 30,70" fill="white"/>`;
-    else if (type === 3) inner = `<polygon points="50,20 90,50 50,80 10,50" fill="${color}"/><circle cx="50" cy="50" r="15" fill="white"/>`;
-    else inner = `<rect x="10" y="30" width="80" height="40" fill="${color}" rx="10"/><circle cx="30" cy="50" r="10" fill="white"/><circle cx="70" cy="50" r="10" fill="white"/>`;
-    return `<g transform="rotate(${rot}, 50, 50) scale(${scale}) translate(${50 * (1/scale - 1)}, ${50 * (1/scale - 1)})">${inner}</g>`;
+    
+    // Outer Shapes (0-5)
+    if (t1 === 0) outer = `<rect x="15" y="15" width="70" height="70" fill="${c1}"/>`;
+    else if (t1 === 1) outer = `<circle cx="50" cy="50" r="40" fill="${c1}"/>`;
+    else if (t1 === 2) outer = `<polygon points="50,10 90,85 10,85" fill="${c1}"/>`;
+    else if (t1 === 3) outer = `<polygon points="50,15 85,50 50,85 15,50" fill="${c1}"/>`; // diamond
+    else if (t1 === 4) outer = `<polygon points="30,10 70,10 90,50 70,90 30,90 10,50" fill="${c1}"/>`; // hexagon
+    else outer = `<path d="M 50 10 C 90 10 90 90 50 90 C 10 90 10 10 50 10 Z" fill="${c1}"/>`; // leaf/drop
+
+    // Inner Shapes (0-5)
+    if (t2 === 0) inner = `<circle cx="50" cy="50" r="15" fill="${c2}"/>`;
+    else if (t2 === 1) inner = `<rect x="35" y="35" width="30" height="30" fill="${c2}"/>`;
+    else if (t2 === 2) inner = `<polygon points="50,25 70,60 30,60" fill="${c2}"/>`;
+    else if (t2 === 3) inner = `<line x1="20" y1="50" x2="80" y2="50" stroke="${c2}" stroke-width="8" stroke-linecap="round"/>`; // horizontal
+    else if (t2 === 4) inner = `<line x1="50" y1="20" x2="50" y2="80" stroke="${c2}" stroke-width="8" stroke-linecap="round"/>`; // vertical
+    else inner = `<path d="M 50 25 L 56 42 L 74 42 L 59 53 L 65 71 L 50 60 L 35 71 L 41 53 L 26 42 L 44 42 Z" fill="${c2}"/>`; // star
+
+    return `<g transform="rotate(${rot}, 50, 50) scale(${scale}) translate(${50 * (1/scale - 1)}, ${50 * (1/scale - 1)})">${outer}${inner}</g>`;
   };
 
   for (let i = 0; i < 55; i++) {
-    if (i < 25) {
-      // Sequence Logic
-      let baseType = Math.floor(Math.random() * 5);
-      let baseColor = `hsl(${Math.floor(Math.random() * 360)}, 60%, 50%)`;
+    if (i < 20) {
+      // MODE 1: Sequence Logic (Rotation Pattern)
+      let t1 = Math.floor(Math.random() * 6);
+      let t2 = Math.floor(Math.random() * 6);
+      let c1 = `hsl(${Math.floor(Math.random() * 360)}, 60%, 40%)`;
+      let c2 = `hsl(${Math.floor(Math.random() * 360)}, 80%, 80%)`;
       let startRot = Math.floor(Math.random() * 8) * 45;
       let rotStep = (Math.floor(Math.random() * 3) + 1) * 45; // 45, 90, or 135
+      let isClockwise = Math.random() > 0.5 ? 1 : -1;
+      rotStep *= isClockwise;
       
       let seqHTML = '';
       for (let j = 0; j < 3; j++) {
         let currentRot = startRot + (j * rotStep);
-        let svg = `<div style="width:80px;height:80px;background:#1e293b;border-radius:8px"><svg viewBox="0 0 100 100">${drawComplexSVG(baseType, baseColor, currentRot, 0.8)}</svg></div>`;
+        let svg = `<div style="width:80px;height:80px;background:#1e293b;border-radius:8px"><svg viewBox="0 0 100 100">${drawComplexSVG(t1, t2, c1, c2, currentRot, 0.8)}</svg></div>`;
         seqHTML += svg;
       }
       seqHTML += `<div style="width:80px;height:80px;background:rgba(255,255,255,0.05);border:2px dashed #475569;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-weight:bold;font-size:24px;">?</div>`;
@@ -253,14 +271,16 @@ const genPola = () => {
       let svgStr = `<div style="display:flex;gap:16px;justify-content:center;margin:1rem 0;">${seqHTML}</div>`;
       
       let correctRot = startRot + (3 * rotStep);
-      let correctOpt = svgOptionWrapper(drawComplexSVG(baseType, baseColor, correctRot, 0.8));
+      let correctOpt = svgOptionWrapper(drawComplexSVG(t1, t2, c1, c2, correctRot, 0.8));
       
       let rawOpts = [correctOpt];
       while(rawOpts.length < 5) {
         let wRot = startRot + (Math.floor(Math.random() * 8) * 45);
-        let wType = baseType;
-        if (Math.random() > 0.7) wType = (baseType + 1) % 5;
-        let wOpt = svgOptionWrapper(drawComplexSVG(wType, baseColor, wRot, 0.8));
+        let wT1 = t1;
+        let wT2 = t2;
+        if (Math.random() > 0.7) wT1 = (t1 + 1) % 6;
+        if (Math.random() > 0.7) wT2 = (t2 + 1) % 6;
+        let wOpt = svgOptionWrapper(drawComplexSVG(wT1, wT2, c1, c2, wRot, 0.8));
         if (!rawOpts.includes(wOpt) && wRot !== correctRot) rawOpts.push(wOpt);
       }
       
@@ -269,36 +289,92 @@ const genPola = () => {
       
       res.push({
         id: `4-${i+1}`,
-        text: `Deret Visual: Perhatikan pola rotasi gambar di atas. Gambar manakah yang tepat untuk mengisi kotak kosong ("?")?`,
+        text: `Deret Rotasi: Perhatikan pola perputaran bangun utama dan komponen di dalamnya. Gambar manakah yang tepat untuk mengisi kotak kosong ("?")?`,
         svg: svgStr,
         options: shuffled.map((o, idx) => o.replace('></span>', `>${String.fromCharCode(65+idx)}.</span>`)),
         answer: ans,
-        discussion: `Pola rotasi berputar sebesar ${rotStep} derajat secara konstan setiap langkah.`
+        discussion: `Pola ini murni rotasi berputar sebesar ${Math.abs(rotStep)} derajat ke arah ${isClockwise > 0 ? 'kanan (searah jarum jam)' : 'kiri (berlawanan jarum jam)'} pada setiap langkahnya.`
       });
+
+    } else if (i < 35) {
+      // MODE 2: Alternating Sequence (Shape/Color Progression)
+      let t1A = Math.floor(Math.random() * 6);
+      let t1B = (t1A + Math.floor(Math.random() * 5) + 1) % 6; // Different outer shape
+      let t2Fixed = Math.floor(Math.random() * 6);
       
+      let c1A = `hsl(${Math.floor(Math.random() * 360)}, 60%, 50%)`;
+      let c1B = `hsl(${Math.floor(Math.random() * 360)}, 60%, 50%)`;
+      let c2Fixed = 'white';
+      
+      let seqHTML = '';
+      // Pattern: A - B - A - ? -> Answer is B
+      let currentRot = 0;
+      for (let j = 0; j < 3; j++) {
+        let isA = j % 2 === 0;
+        let t1 = isA ? t1A : t1B;
+        let c1 = isA ? c1A : c1B;
+        let svg = `<div style="width:80px;height:80px;background:#1e293b;border-radius:8px"><svg viewBox="0 0 100 100">${drawComplexSVG(t1, t2Fixed, c1, c2Fixed, currentRot, 0.8)}</svg></div>`;
+        seqHTML += svg;
+      }
+      seqHTML += `<div style="width:80px;height:80px;background:rgba(255,255,255,0.05);border:2px dashed #475569;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-weight:bold;font-size:24px;">?</div>`;
+      
+      let svgStr = `<div style="display:flex;gap:16px;justify-content:center;margin:1rem 0;">${seqHTML}</div>`;
+      
+      let correctOpt = svgOptionWrapper(drawComplexSVG(t1B, t2Fixed, c1B, c2Fixed, 0, 0.8));
+      
+      let rawOpts = [correctOpt];
+      // Generate logical distractors
+      rawOpts.push(svgOptionWrapper(drawComplexSVG(t1A, t2Fixed, c1A, c2Fixed, 0, 0.8))); // Repeat A
+      rawOpts.push(svgOptionWrapper(drawComplexSVG(t1A, t2Fixed, c1B, c2Fixed, 0, 0.8))); // Mix shape A color B
+      rawOpts.push(svgOptionWrapper(drawComplexSVG(t1B, t2Fixed, c1A, c2Fixed, 0, 0.8))); // Mix shape B color A
+      
+      while(rawOpts.length < 5) {
+        let wT1 = Math.floor(Math.random() * 6);
+        let wC1 = Math.random() > 0.5 ? c1A : c1B;
+        let wOpt = svgOptionWrapper(drawComplexSVG(wT1, t2Fixed, wC1, c2Fixed, 0, 0.8));
+        if (!rawOpts.includes(wOpt)) rawOpts.push(wOpt);
+      }
+      
+      let shuffled = shuffleArray(rawOpts);
+      let ans = shuffled.indexOf(correctOpt);
+
+      res.push({
+        id: `4-${i+1}`,
+        text: `Deret Alternasi: Analisis pola pergantian bentuk dan warna secara berseling. Bangun manakah yang merupakan urutan selanjutnya?`,
+        svg: svgStr,
+        options: shuffled.map((o, idx) => o.replace('></span>', `>${String.fromCharCode(65+idx)}.</span>`)),
+        answer: ans,
+        discussion: `Pola ini bergantian (selang-seling) antara dua set atribut (bentuk luar dan warna luar).`
+      });
+
     } else {
-      // Matching Image
-      let targetType = Math.floor(Math.random() * 5);
-      let color = `hsl(${Math.floor(Math.random() * 360)}, 70%, 50%)`;
+      // MODE 3: Matching Image (Precision matching)
+      let t1 = Math.floor(Math.random() * 6);
+      let t2 = Math.floor(Math.random() * 6);
+      let c1 = `hsl(${Math.floor(Math.random() * 360)}, 70%, 40%)`;
+      let c2 = `hsl(${Math.floor(Math.random() * 360)}, 80%, 90%)`;
       let rotation = Math.floor(Math.random() * 360);
       
       let svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" style="background:#0f172a;border-radius:8px">
         <text x="100" y="20" fill="white" font-size="14" text-anchor="middle">Gambar Target:</text>
-        <g transform="translate(50, 20)">${drawComplexSVG(targetType, color, rotation, 0.8)}</g>
+        <g transform="translate(50, 20)">${drawComplexSVG(t1, t2, c1, c2, rotation, 0.8)}</g>
       </svg>`;
       
-      let correctSvg = svgOptionWrapper(drawComplexSVG(targetType, color, rotation, 0.8));
+      let correctSvg = svgOptionWrapper(drawComplexSVG(t1, t2, c1, c2, rotation, 0.8));
       
       let rawOpts = [correctSvg];
       while(rawOpts.length < 5) {
         let wRot = Math.floor(Math.random() * 360);
-        let wColor = color;
-        if (Math.random() > 0.5) wColor = `hsl(${Math.floor(Math.random() * 360)}, 70%, 50%)`;
-        let wOpt = svgOptionWrapper(drawComplexSVG(targetType, wColor, wRot, 0.8));
-        if (Math.random() > 0.7) {
-            let wType = (targetType + 1) % 5;
-            wOpt = svgOptionWrapper(drawComplexSVG(wType, wColor, wRot, 0.8));
-        }
+        let wC1 = c1; 
+        if (Math.random() > 0.5) wC1 = `hsl(${Math.floor(Math.random() * 360)}, 70%, 40%)`;
+        else wC1 = c1;
+        
+        let wT1 = t1;
+        let wT2 = t2;
+        if (Math.random() > 0.4) wT1 = (t1 + 1) % 6; // slightly different outer
+        if (Math.random() > 0.6) wT2 = (t2 + 1) % 6; // slightly different inner
+        
+        let wOpt = svgOptionWrapper(drawComplexSVG(wT1, wT2, wC1, c2, wRot, 0.8));
         if (!rawOpts.includes(wOpt) && wOpt !== correctSvg) rawOpts.push(wOpt);
       }
       
@@ -307,11 +383,11 @@ const genPola = () => {
 
       res.push({
         id: `4-${i+1}`,
-        text: `Matching Image: Manakah dari 5 opsi di bawah ini yang IDENTIK secara presisi dengan gambar target di atas?`,
+        text: `Identifikasi Visual: Manakah dari 5 opsi di bawah ini yang IDENTIK secara presisi dengan gambar target di atas? (Hati-hati dengan distraktor yang mirip)`,
         svg: svgStr,
         options: shuffled.map((o, idx) => o.replace('></span>', `>${String.fromCharCode(65+idx)}.</span>`)),
         answer: ans,
-        discussion: "Perhatikan presisi derajat rotasi, bentuk dalam, dan warna gambar utama."
+        discussion: "Hanya ada 1 gambar yang memiliki kesamaan absolut pada bentuk luar, bentuk dalam, warna, dan derajat rotasi."
       });
     }
   }
