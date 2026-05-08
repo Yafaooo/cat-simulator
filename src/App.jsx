@@ -119,19 +119,14 @@ function App() {
   const [totalPeserta, setTotalPeserta] = useState(256);
 
   useEffect(() => {
-    const fetchPeserta = async () => {
-      try {
-        const codesRef = ref(db, 'codes');
-        const snapshot = await get(codesRef);
-        if (snapshot.exists()) {
-          const count = Object.keys(snapshot.val()).length;
-          setTotalPeserta(256 + count);
-        }
-      } catch (error) {
-        console.error(error);
+    const codesRef = ref(db, 'codes');
+    const unsubscribe = onValue(codesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const count = Object.keys(snapshot.val()).length;
+        setTotalPeserta(256 + count);
       }
-    };
-    fetchPeserta();
+    });
+    return () => unsubscribe();
   }, []);
 
   const QUESTIONS_PER_BLOCK = 1;
