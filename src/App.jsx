@@ -757,6 +757,22 @@ function App() {
           <button className="btn btn-success" style={{ padding: '16px 48px', fontSize: '1.2rem', opacity: candidateName.trim() === '' ? 0.5 : 1 }} onClick={startTest} disabled={candidateName.trim() === ''}>
             MULAI SIMULASI
           </button>
+          
+          <div style={{ marginTop: '2rem' }}>
+            <button 
+              onClick={() => {
+                if(window.confirm('Apakah Anda yakin ingin logout dan kembali ke halaman utama? (Anda harus memasukkan kode akses lagi nantinya)')) {
+                  localStorage.removeItem(`phtc_session_${accessCode}`);
+                  window.location.reload();
+                }
+              }}
+              style={{ background: 'transparent', border: '1px solid var(--danger)', color: 'var(--danger)', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem', transition: 'all 0.3s ease' }}
+              onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)' }}
+              onMouseOut={(e) => { e.currentTarget.style.background = 'transparent' }}
+            >
+              Keluar / Ganti Kode Akses
+            </button>
+          </div>
         </div>
       )}
 
