@@ -118,6 +118,33 @@ function App() {
   const [timeStats, setTimeStats] = useState({}); // { 0: 300, 1: 400 ... } -> time spent in seconds per subtest
   const [totalPeserta, setTotalPeserta] = useState(256);
 
+  // Flash Promo Timer State
+  const [promoTimeLeft, setPromoTimeLeft] = useState(() => {
+    const now = new Date();
+    const target = new Date();
+    target.setHours(20, 0, 0, 0);
+    if (now > target) {
+       target.setDate(target.getDate() + 1); // Besok jam 20:00 jika sudah lewat
+    }
+    return Math.floor((target - now) / 1000);
+  });
+
+  useEffect(() => {
+    if (appState === 'locked') {
+      const timer = setInterval(() => {
+        setPromoTimeLeft(prev => prev > 0 ? prev - 1 : 0);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [appState]);
+
+  const formatPromoTime = (seconds) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
   useEffect(() => {
     const codesRef = ref(db, 'codes');
     const unsubscribe = onValue(codesRef, (snapshot) => {
@@ -598,6 +625,21 @@ function App() {
             </div>
           </div>
           <div className="locked-right">
+            
+            {/* Flash Promo Banner */}
+            <div className="animate-fade-in" style={{ background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.4))', padding: '1rem', borderRadius: '12px', marginBottom: '1.5rem', border: '1px solid rgba(239, 68, 68, 0.5)', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: 0, right: 0, background: 'var(--danger)', color: '#fff', fontSize: '0.7rem', fontWeight: 'bold', padding: '4px 12px', borderBottomLeftRadius: '12px' }}>
+                SISA {formatPromoTime(promoTimeLeft)}
+              </div>
+              <h3 style={{ color: '#fff', margin: '0 0 8px 0', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span className="pulse-icon">🔥</span> FLASH SALE TERAKHIR!
+              </h3>
+              <p style={{ color: 'var(--text-main)', fontSize: '0.9rem', lineHeight: '1.4', margin: 0 }}>
+                Dapatkan <strong style={{ color: 'var(--gold)' }}>Kode Akses VVIP</strong> hanya seharga <strong style={{ color: 'var(--success)', fontSize: '1.1rem' }}>Rp 15.000</strong> (Diskon dari Rp 35.000).<br/>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>*Promo hanya berlaku sampai jam 20:00 WIB & terbatas 10 slot akses saja!</span>
+              </p>
+            </div>
+
             <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem', border: '1px solid var(--glass-border)' }}>
               
               {/* Tabs for Package Selection */}
