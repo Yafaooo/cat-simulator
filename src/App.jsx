@@ -630,9 +630,18 @@ function App() {
                   <p style={{ color: 'var(--accent)', marginBottom: '1rem', fontWeight: 'bold' }}>
                     Dapatkan Kode Akses Simulasi VVIP
                   </p>
-                  <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                  <p style={{ color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
                     Investasi <strong style={{ color: 'var(--accent)' }}>Rp 35.000</strong> (seharga nongkrong di kafe) untuk masa depan yang cerah! 90% soal mirip aslinya, super lengkap dengan kunci jawaban dan pembahasan biar kamu nggak overthinking tengah malam. Dijamin otak auto-encer dan siap tempur! 🚀😎
                   </p>
+                  <div className="animate-fade-in" style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '12px 16px', borderRadius: '12px', marginBottom: '1.5rem', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                    <div style={{ fontSize: '1.5rem' }}>🎁</div>
+                    <div>
+                      <strong style={{ color: 'var(--success)', display: 'block', marginBottom: '4px', fontSize: '0.95rem' }}>PROMO EKSKLUSIF!</strong>
+                      <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-main)', lineHeight: '1.4' }}>
+                        Sudah pernah beli kode Premium? Dapatkan kode VVIP cukup dengan <strong style={{ color: 'var(--accent)', fontSize: '1rem' }}>Rp 25.000</strong> saja! Chat Admin dan tunjukkan bukti transfer Premium Anda sebelumnya.
+                      </p>
+                    </div>
+                  </div>
                 </>
               )}
               
