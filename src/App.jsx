@@ -763,6 +763,8 @@ function App() {
               onClick={() => {
                 if(window.confirm('Apakah Anda yakin ingin logout dan kembali ke halaman utama? (Anda harus memasukkan kode akses lagi nantinya)')) {
                   localStorage.removeItem(`phtc_session_${accessCode}`);
+                  localStorage.removeItem('phtc_access_code');
+                  localStorage.removeItem('phtc_package_type');
                   window.location.reload();
                 }
               }}
