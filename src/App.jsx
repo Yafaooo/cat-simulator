@@ -636,7 +636,7 @@ function App() {
               </h3>
               <p style={{ color: 'var(--text-main)', fontSize: '0.9rem', lineHeight: '1.4', margin: 0 }}>
                 Dapatkan <strong style={{ color: 'var(--gold)' }}>Kode Akses VVIP</strong> hanya seharga <strong style={{ color: 'var(--success)', fontSize: '1.1rem' }}>Rp 15.000</strong> (Diskon dari Rp 35.000).<br/>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>*Promo hanya berlaku sampai jam 20:00 WIB & terbatas 10 slot akses saja!</span>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>*Promo hanya berlaku sampai jam 20:00 WIB & <strong style={{ color: 'var(--danger)', background: 'rgba(255,255,255,0.8)', padding: '2px 6px', borderRadius: '4px' }}>SISA 5 SLOT SAJA!</strong></span>
               </p>
             </div>
 
