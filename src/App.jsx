@@ -867,10 +867,15 @@ function App() {
             <h1 style={{ textAlign: 'center', marginBottom: '1rem' }}>Laporan Analitik Akhir Simulasi CAT</h1>
             <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '2rem' }}>Kandidat: {candidateName}</p>
 
-            <div style={{ textAlign: 'center', marginBottom: '2rem', padding: '1rem', borderRadius: '8px', background: passedTPK ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
-              <h2 style={{ color: passedTPK ? 'var(--success)' : 'var(--danger)', margin: 0 }}>
-                {passedTPK ? 'Luar Biasa! Anda Direkomendasikan (Lulus TPK)' : 'Tidak Lulus Ambang Batas (110 Poin).'}
+            <div style={{ textAlign: 'center', marginBottom: '2rem', padding: '1.5rem', borderRadius: '12px', border: passedTPK ? '2px solid var(--success)' : '2px solid var(--danger)', background: passedTPK ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)', boxShadow: passedTPK ? '0 0 20px rgba(16, 185, 129, 0.3)' : '0 0 20px rgba(239, 68, 68, 0.3)' }}>
+              <h2 style={{ color: passedTPK ? 'var(--success)' : 'var(--danger)', margin: '0 0 0.5rem 0', fontSize: '1.8rem' }}>
+                {passedTPK ? '🎉 SELAMAT! ANDA LULUS TPK' : '❌ MOHON MAAF, ANDA GAGAL TPK'}
               </h2>
+              <p style={{ margin: 0, color: 'var(--text-main)', fontSize: '1.1rem' }}>
+                {passedTPK 
+                  ? 'Anda berhasil melampaui Ambang Batas Kelulusan (Minimal 110 Poin PG TPK). Pertahankan performa luar biasa Anda!' 
+                  : 'Skor Anda belum mencapai Ambang Batas Kelulusan (Minimal 110 Poin PG TPK). Silakan pelajari lagi dan coba kembali!'}
+              </p>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '3rem' }}>
@@ -922,7 +927,12 @@ function App() {
 
 
             <div style={{ textAlign: 'center', marginTop: '4rem' }}>
-              <button className="btn" onClick={() => window.location.reload()}>Selesai & Kembali ke Awal</button>
+              <button className="btn" onClick={() => {
+                localStorage.removeItem(`phtc_session_${accessCode}`);
+                window.location.reload();
+              }} style={{ padding: '16px 32px', fontSize: '1.1rem', fontWeight: 'bold' }}>
+                Selesai & Ulangi Simulasi ↺
+              </button>
             </div>
           </div>
         );
