@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SUBTESTS } from './data/questions';
-import { ref, get, set } from 'firebase/database';
+import { ref, get, set, onValue } from 'firebase/database';
 import { db } from './firebase';
 
 // ============================================================
@@ -144,13 +144,76 @@ function App() {
 
   const totalBlocks = currentSubtest ? Math.ceil(currentSubtest.questions.length / QUESTIONS_PER_BLOCK) : 0;
 
+  const loadSessionOrIntro = (code) => {
+    const savedSessionStr = localStorage.getItem(`phtc_session_${code}`);
+    if (savedSessionStr) {
+      try {
+        const savedSession = JSON.parse(savedSessionStr);
+        setAppState(savedSession.appState || 'intro');
+        setCandidateName(savedSession.candidateName || '');
+        setCurrentSubtestIndex(savedSession.currentSubtestIndex || 0);
+        setCurrentBlockIndex(savedSession.currentBlockIndex || 0);
+        setTimeLeft(savedSession.timeLeft || 0);
+        setAnswers(savedSession.answers || {});
+        setTimeStats(savedSession.timeStats || {});
+      } catch(e) {
+        setAppState('intro');
+      }
+    } else {
+      setAppState('intro');
+    }
+  };
+
   useEffect(() => {
     const savedCode = localStorage.getItem('phtc_access_code');
     const savedType = localStorage.getItem('phtc_package_type');
     if (savedCode && savedType === 'premium' && VALID_ACCESS_CODES.includes(savedCode)) {
-      setAppState('intro');
+      setAccessCode(savedCode);
+      loadSessionOrIntro(savedCode);
     }
     // VVIP tidak perlu setAppState karena redirect ke URL lain
+  }, []);
+
+  // Auto-Save Effect
+  useEffect(() => {
+    if (appState !== 'locked' && appState !== 'intro' && accessCode) {
+      const sessionData = {
+        appState,
+        candidateName,
+        currentSubtestIndex,
+        currentBlockIndex,
+        timeLeft,
+        answers,
+        timeStats,
+      };
+      localStorage.setItem(`phtc_session_${accessCode}`, JSON.stringify(sessionData));
+    }
+  }, [appState, candidateName, currentSubtestIndex, currentBlockIndex, timeLeft, answers, timeStats, accessCode]);
+
+  // OTA Version Listener
+  useEffect(() => {
+    const versionRef = ref(db, 'config/appVersion');
+    let initialLoad = true;
+    let localVersion = localStorage.getItem('phtc_app_version') || '1.0';
+    
+    const unsubscribe = onValue(versionRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const serverVersion = snapshot.val().toString();
+        if (initialLoad) {
+          if (localVersion !== serverVersion) {
+            localStorage.setItem('phtc_app_version', serverVersion);
+            localVersion = serverVersion;
+          }
+          initialLoad = false;
+        } else {
+          if (localVersion !== serverVersion) {
+            localStorage.setItem('phtc_app_version', serverVersion);
+            window.location.reload();
+          }
+        }
+      }
+    });
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -216,7 +279,7 @@ function App() {
           if (packageType === 'vvip') {
              window.location.href = 'https://catreal.vercel.app/';
           } else {
-             setAppState('intro');
+             loadSessionOrIntro(code);
           }
         } else {
           setAccessError('Kode sudah digunakan di perangkat lain!');
@@ -234,7 +297,7 @@ function App() {
         if (packageType === 'vvip') {
            window.location.href = 'https://catreal.vercel.app/';
         } else {
-           setAppState('intro');
+           loadSessionOrIntro(code);
         }
       }
     } catch (error) {
