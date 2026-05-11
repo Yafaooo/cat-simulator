@@ -600,6 +600,27 @@ function App() {
           </div>
           <div className="locked-right">
 
+            {/* BANNER PROMO COMING SOON CPNS 2026 */}
+            <a href="https://cpns-woad.vercel.app/" target="_blank" rel="noopener noreferrer" className="animate-fade-in" style={{ display: 'block', textDecoration: 'none', background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.15))', border: '1px solid rgba(139, 92, 246, 0.4)', padding: '16px', borderRadius: '12px', marginBottom: '1.5rem', position: 'relative', cursor: 'pointer', transition: 'all 0.3s ease', boxShadow: '0 8px 32px rgba(0,0,0,0.15)', overflow: 'hidden' }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 15px 40px rgba(139, 92, 246, 0.3)' }} onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.15)' }}>
+               {/* Watermark Diagonal Background */}
+               <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(-10deg)', fontSize: '4rem', fontWeight: '900', color: 'rgba(255,255,255,0.04)', whiteSpace: 'nowrap', pointerEvents: 'none', letterSpacing: '4px' }}>
+                 COMING SOON
+               </div>
+               
+               <div style={{ display: 'flex', alignItems: 'center', gap: '15px', position: 'relative', zIndex: 2 }}>
+                  <div style={{ width: '45px', height: '45px', borderRadius: '12px', background: 'rgba(139, 92, 246, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c4b5fd', flexShrink: 0, border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                  </div>
+                  <div>
+                     <h4 style={{ margin: 0, color: '#fff', fontSize: '1.05rem', fontWeight: 'bold', marginBottom: '4px', textShadow: '0 2px 10px rgba(139, 92, 246, 0.5)', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                        CAT CPNS 2026 Gen-Baru
+                        <span style={{ background: 'var(--danger)', color: '#fff', fontSize: '0.65rem', padding: '3px 8px', borderRadius: '12px', letterSpacing: '0.5px', boxShadow: '0 2px 5px rgba(239,68,68,0.4)', textShadow: 'none' }}>PREVIEW</span>
+                     </h4>
+                     <p style={{ margin: 0, color: '#e2e8f0', fontSize: '0.8rem', lineHeight: '1.4' }}>Sistem VVIP terbaru sedang dalam tahap pengembangan. <span style={{ color: '#fbcfe8', fontWeight: 'bold' }}>Klik Untuk Intip! 🚀</span></p>
+                  </div>
+               </div>
+            </a>
+
             <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem', border: '1px solid var(--glass-border)' }}>
               
               {/* Tabs for Package Selection */}
